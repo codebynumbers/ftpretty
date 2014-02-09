@@ -3,9 +3,6 @@ ftpretty
 
 A wrapper for simple FTP operations: get, put, list etc.
 
-Examples:
----------
-
     from ftpretty import ftpretty
 
     # kwargs are passed to underlying FTP or FTP_TLS connection

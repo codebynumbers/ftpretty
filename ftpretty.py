@@ -14,6 +14,7 @@
 """
 from ftplib import FTP, FTP_TLS
 import os
+import cStringIO
 
 class ftpretty(object):
     conn = None
@@ -26,13 +27,34 @@ class ftpretty(object):
             self.conn = FTP(host=host, user=user, passwd=password, **kwargs)
         
 
-    def get(self, remote, local):
-        """ Gets the file from FTP server """       
-        local_file = open(local, 'wb')
+    def get(self, remote, local=None):
+        """ Gets the file from FTP server
+
+            local can be:
+                a string: path to output file
+                a file: opened for writing
+                None: contents are returned
+        """       
+        if isinstance(local, file):
+            local_file = local
+        elif local is None:
+            local_file = cStringIO.StringIO()
+        else:   
+            local_file = open(local, 'wb')
+
         self.conn.retrbinary("RETR %s" % remote, local_file.write)
-        local_file.close()
-        return os.path.getsize(local)
-       
+
+        if isinstance(local, file):
+            local_file = local
+        elif local is None:
+            contents = local_file.getvalue()
+            local_file.close()
+            return contents
+        else:   
+            local_file.close()
+
+        return None
+
     def put(self, local, remote):
         """ Puts a local file on the FTP server """       
         remote_dir = os.path.dirname(remote)
