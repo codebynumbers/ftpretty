@@ -86,10 +86,16 @@ class ftpretty(object):
         self.conn.cwd(current)
         return self.conn.size(remote)
 
-    def list(self, remote='.'):
+    def list(self, remote='.', extra=False):
         """ Return directory list """
-        files = self.conn.nlst(remote)
-        return files
+        if not extra:
+            return self.conn.nlst(remote)
+        # TODO
+        # - capture output using callback
+        # - split output into a dict
+        self.conn.dir(remote)
+        return None
+
 
     def descend(self, remote, force=False):
         """ Descend, possibly creating directories as needed """
