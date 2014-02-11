@@ -56,16 +56,17 @@ class ftpretty(object):
         return None
 
 
-    def put(self, local, remote):
-        """ Puts a local file on the FTP server """       
+    def put(self, local, remote, contents=None):
+        """ Puts a local file (or contents) on to the FTP server """       
         remote_dir = os.path.dirname(remote)
         remote_file = os.path.basename(remote)
-        if os.path.isfile(local):
-            local_file = open(local, 'rb')
+        if contents:
+            # local is ignored if contents is set
+            local_file = cStringIO.StringIO(contents)
         elif isinstance(local, file):
             local_file = local
         else:
-            local_file = cStringIO.StringIO(local)
+            local_file = open(local, 'rb')
         current = self.conn.pwd()
         self.descend(remote_dir, force=True)
         self.conn.storbinary('STOR %s' % remote_file, local_file)
