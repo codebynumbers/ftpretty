@@ -15,6 +15,8 @@
 from ftplib import FTP, FTP_TLS
 import os
 import cStringIO
+import re
+import datetime
 
 class ftpretty(object):
     conn = None
@@ -32,6 +34,7 @@ class ftpretty(object):
             method = getattr(self.conn, name)
             return method(*args, **kwargs)
         return wrapper
+
 
     def get(self, remote, local=None):
         """ Gets the file from FTP server
@@ -86,15 +89,18 @@ class ftpretty(object):
         self.conn.cwd(current)
         return self.conn.size(remote)
 
+
     def list(self, remote='.', extra=False):
         """ Return directory list """
         if not extra:
             return self.conn.nlst(remote)
-        # TODO
-        # - capture output using callback
-        # - split output into a dict
-        self.conn.dir(remote)
-        return None
+        self.tmp_output = []
+        self.conn.dir(remote, self._collector)
+        return self.split_file_info(self.tmp_output)
+
+
+    def _collector(self, line):
+        self.tmp_output.append(line)
 
 
     def descend(self, remote, force=False):
@@ -109,18 +115,53 @@ class ftpretty(object):
                     self.conn.cwd(dir)
         return self.conn.pwd()
 
+
     def delete(self, remote):
         return self.conn.delete(remote)
+
 
     def cd(self, remote):
         self.conn.cwd(remote)
         return self.pwd()
 
+
     def pwd(self):
         return self.conn.pwd()
+
 
     def close(self):
         try:
             self.conn.quit()
         except:
             self.conn.close()
+
+
+    def split_file_info(self, fileinfo):
+        current_year = datetime.datetime.now().strftime('%Y')
+        files = []        
+        for line in fileinfo:
+            parts = re.split(
+                '^([\\-dbclps])' +                # Directory flag [1]
+                '([\\-rwxs]{9})\\s+' +            # Permissions [2]
+                '(\\d+)\\s+' +                    # Number of items [3]
+                '(\\w+)\\s+' +                    # File owner [4]
+                '(\\w+)\\s+' +                    # File group [5]
+                '(\\d+)\\s+' +                    # File size in bytes [6]
+                '(\\w{3}\\s+\\d{1,2})\\s+' +       # 3-char month and 1/2-char day of the month [7]
+                '(\\d{1,2}:\\d{1,2}|\\d{4})\\s+' + # Time or year (need to check conditions) [+= 7]
+                '(.+)$'                       # File/directory name [8]
+                , line)
+            files.append({
+                'directory': parts[1],
+                'perms': parts[2],
+                'items': parts[3],
+                'owner': parts[4],
+                'group': parts[5],
+                'size': parts[6],
+                'date': parts[7],
+                'time': parts[8] if ':' in parts[8] else '00:00',
+                'year': parts[8] if ':' not in parts[8] else current_year,
+                'name': parts[9]
+                }) 
+        return files
+

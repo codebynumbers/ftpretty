@@ -50,7 +50,30 @@ Examples:
 
     # Return a list the files in a directory
     f.list('someremote/folder')
+    ['a.txt', 'b.txt']
 
+    f.list('someremote/folder', extra=True)
+    [{'date': 'Feb 11',
+      'directory': 'd',
+      'group': '1006',
+      'items': '3',
+      'name': 'a.txt',
+      'owner': '1005',
+      'perms': 'rwxr-xr-x',
+      'size': '4096',
+      'time': '02:03',
+      'year': '2014'},
+     {'date': 'Feb 11',
+      'directory': 'd',
+      'group': '1006',
+      'items': '3',
+      'name': 'b.txt',
+      'owner': '1005',
+      'perms': 'rwxr-xr-x',
+      'size': '4096',
+      'time': '02:35',
+      'year': '2014'}]
+    
     # Change to remote directory
     f.cd('someremote/folder')
 
