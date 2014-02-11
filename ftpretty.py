@@ -60,12 +60,11 @@ class ftpretty(object):
         remote_dir = os.path.dirname(remote)
         remote_file = os.path.basename(remote)
         local_file = open(local, 'rb')
-        self.cd(remote_dir, force=True)
+        current = self.conn.pwd()
+        self.descend(remote_dir, force=True)
         self.conn.storbinary('STOR %s' % remote_file, local_file)
         local_file.close()
-        # assumes an initial stright downward descent, 
-        # no dot paths, make more robust later
-        self.cd("../" * len(remote_dir.split('/')))
+        self.conn.cwd(current)
         return self.conn.size(remote)
 
     def list(self, remote='.'):
@@ -73,7 +72,7 @@ class ftpretty(object):
         files = self.conn.nlst(remote)
         return files
 
-    def cd(self, remote, force=False):
+    def descend(self, remote, force=False):
         """ Descend, possibly creating directories as needed """
         remote_dirs = remote.split('/')
         for dir in remote_dirs:
@@ -87,6 +86,12 @@ class ftpretty(object):
 
     def delete(self, remote):
         return self.conn.delete(remote)
+
+    def cd(self, remote):
+        return self.conn.cwd(remote)
+
+    def pwd(self):
+        return self.conn.pwd()
 
     def close(self):
         try:
