@@ -137,6 +137,9 @@ class ftpretty(object):
 
 
     def split_file_info(self, fileinfo):
+        """ Parse sane directory output usually ls -l
+            Adapted from https://gist.github.com/tobiasoberrauch/2942716 
+        """
         current_year = datetime.datetime.now().strftime('%Y')
         files = []        
         for line in fileinfo:
