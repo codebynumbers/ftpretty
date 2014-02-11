@@ -26,6 +26,12 @@ class ftpretty(object):
         else:
             self.conn = FTP(host=host, user=user, passwd=password, **kwargs)
         
+    def __getattr__(self, name):
+        """ Pass anything we don't know about, to underlying ftp connection """
+        def wrapper(*args, **kwargs):
+            method = getattr(self.conn, name)
+            return method(*args, **kwargs)
+        return wrapper
 
     def get(self, remote, local=None):
         """ Gets the file from FTP server
@@ -57,7 +63,13 @@ class ftpretty(object):
 
 
     def put(self, local, remote, contents=None):
-        """ Puts a local file (or contents) on to the FTP server """       
+        """ Puts a local file (or contents) on to the FTP server 
+
+            local can be:
+                a string: path to inpit file
+                a file: opened for reading
+                None: contents are pushed
+        """       
         remote_dir = os.path.dirname(remote)
         remote_file = os.path.basename(remote)
         if contents:
