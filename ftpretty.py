@@ -134,8 +134,12 @@ class ftpretty(object):
 
 
     def cd(self, remote):
-        self.conn.cwd(remote)
-        return self.pwd()
+        try:
+            self.conn.cwd(remote)
+        except:
+            return False
+        else:
+            return self.pwd()
 
 
     def pwd(self):
