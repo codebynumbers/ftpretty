@@ -3,3 +3,4 @@ env
 dist
 build
 MANIFEST
+ftpretty.egg-info
