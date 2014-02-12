@@ -125,7 +125,12 @@ class ftpretty(object):
 
 
     def delete(self, remote):
-        return self.conn.delete(remote)
+        try:
+            self.conn.delete(remote)
+        except:
+            return False
+        else:
+            return True        
 
 
     def cd(self, remote):
