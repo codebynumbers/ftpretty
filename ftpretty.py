@@ -74,7 +74,8 @@ class ftpretty(object):
                 None: contents are pushed
         """       
         remote_dir = os.path.dirname(remote)
-        remote_file = os.path.basename(remote)
+        remote_file = os.path.basename(local) if remote.endswith('/') else os.path.basename(remote)
+
         if contents:
             # local is ignored if contents is set
             local_file = cStringIO.StringIO(contents)
@@ -84,15 +85,17 @@ class ftpretty(object):
             local_file = open(local, 'rb')
         current = self.conn.pwd()
         self.descend(remote_dir, force=True)
+
+        size = 0
         try:
             self.conn.storbinary('STOR %s' % remote_file, local_file)
+            size = self.conn.size(remote_file)
         except Exception as e:
             print e
         finally:
             local_file.close()
             self.conn.cwd(current)
-            return 0
-        return self.conn.size(remote)
+        return size
 
 
     def list(self, remote='.', extra=False):
