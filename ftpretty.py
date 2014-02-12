@@ -84,9 +84,14 @@ class ftpretty(object):
             local_file = open(local, 'rb')
         current = self.conn.pwd()
         self.descend(remote_dir, force=True)
-        self.conn.storbinary('STOR %s' % remote_file, local_file)
-        local_file.close()
-        self.conn.cwd(current)
+        try:
+            self.conn.storbinary('STOR %s' % remote_file, local_file)
+        except Exception as e:
+            print e
+        finally:
+            local_file.close()
+            self.conn.cwd(current)
+            return 0
         return self.conn.size(remote)
 
 
