@@ -42,6 +42,11 @@ Examples
 
     or
 
+    # Put a local file into a remote directory, denoted by trailing slash on remote
+    f.put('/tmp/localcopy/data.txt', 'someremote/dir/')
+
+    or
+
     # Put using an open file desciptor
     myfile = open('/tmp/localcopy/data.txt', 'r')
     f.put(myfile,  'someremote/file/on/server.txt')
