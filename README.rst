@@ -11,7 +11,10 @@ Transfers are assumed to be binary.
 
 Unrecognized commands fall through to the underlying FTP or FTP_TLS connection object
 
-Examples:
+Examples
+--------
+
+::
 
     from ftpretty import ftpretty
 
