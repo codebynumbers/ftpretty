@@ -21,13 +21,16 @@ import datetime
 class ftpretty(object):
     conn = None
 
-    def __init__(self, host, user, password, secure=False, **kwargs): 
+    def __init__(self, host, user, password, secure=False, passive=True, **kwargs): 
         if secure:
             self.conn = FTP_TLS(host=host, user=user, passwd=password, **kwargs)
             self.conn.prot_p()
         else:
             self.conn = FTP(host=host, user=user, passwd=password, **kwargs)
-        
+
+        if not passive:
+            self.conn.set_pasv(False)
+
     def __getattr__(self, name):
         """ Pass anything we don't know about, to underlying ftp connection """
         def wrapper(*args, **kwargs):
