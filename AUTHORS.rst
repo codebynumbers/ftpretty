@@ -1,4 +1,5 @@
 Authors
 =======
-Rob Harrigan
-Chris Cannon
+
+- Rob Harrigan
+- Chris Cannon
