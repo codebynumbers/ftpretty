@@ -17,6 +17,7 @@ import os
 import cStringIO
 import re
 import datetime
+from dateutil import parser
 
 class ftpretty(object):
     conn = None
@@ -174,6 +175,12 @@ class ftpretty(object):
                 '(\\d{1,2}:\\d{1,2}|\\d{4})\\s+' + # Time or year (need to check conditions) [+= 7]
                 '(.+)$'                       # File/directory name [8]
                 , line)
+
+            date = parts[7]
+            time = parts[8] if ':' in parts[8] else '00:00'
+            year = parts[8] if ':' not in parts[8] else current_year
+            dt = parser.parse("%s %s %s" % (date, year, time) )
+
             files.append({
                 'directory': parts[1],
                 'perms': parts[2],
@@ -181,10 +188,11 @@ class ftpretty(object):
                 'owner': parts[4],
                 'group': parts[5],
                 'size': parts[6],
-                'date': parts[7],
-                'time': parts[8] if ':' in parts[8] else '00:00',
-                'year': parts[8] if ':' not in parts[8] else current_year,
-                'name': parts[9]
+                'date': date,
+                'time': time,
+                'year': year,
+                'name': parts[9],
+                'datetime': dt
                 }) 
         return files
 
