@@ -22,8 +22,10 @@ from dateutil import parser
 class ftpretty(object):
     conn = None
 
-    def __init__(self, host, user, password, secure=False, passive=True, **kwargs): 
-        if secure:
+    def __init__(self, host, user, password, secure=False, passive=True, ftp_conn=None, **kwargs): 
+        if ftp_conn:
+            self.conn = ftp_conn
+        elif secure:
             self.conn = FTP_TLS(host=host, user=user, passwd=password, **kwargs)
             self.conn.prot_p()
         else:
