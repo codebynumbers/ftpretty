@@ -1,4 +1,5 @@
-.. image:: https://travis-ci.org/codebynumbers/ftpretty.png?branch=master   :target: https://travis-ci.org/codebynumbers/ftpretty?branch=master
+.. image:: https://travis-ci.org/codebynumbers/ftpretty.png?branch=master
+   :target: https://travis-ci.org/codebynumbers/ftpretty
 
 ftpretty
 ========
