@@ -189,7 +189,7 @@ class ftpretty(object):
                 'items': parts[3],
                 'owner': parts[4],
                 'group': parts[5],
-                'size': parts[6],
+                'size': int(parts[6]),
                 'date': date,
                 'time': time,
                 'year': year,
