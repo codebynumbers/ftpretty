@@ -21,6 +21,9 @@ setup(name='ftpretty',
       url='https://github.com/codebynumbers/ftpretty/',
       download_url='https://github.com/codebynumbers/ftpretty/tarball/%s' % __version__,
       py_modules=['ftpretty'],
+      install_requires = [
+        'python-dateutil',
+      ],
       test_suite = 'test_ftpretty.suite',
      )
 
