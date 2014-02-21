@@ -73,7 +73,8 @@ class FtprettyTestCase(unittest.TestCase):
         self.assertEquals(len(self.pretty.list()), 2)
 
     def test_put(self):
-        print self.pretty.put('AUTHORS.rst', 'AUTHORS.rst')
+        size = self.pretty.put('AUTHORS.rst', 'AUTHORS.rst')
+        self.assertEquals(size, os.path.getsize('AUTHORS.rst'))
         
     def test_dir_parse(self):
         self.mock_ftp._set_dirlist("-rw-rw-r-- 1 rharrigan www   47 Feb 20 11:39 Cool.txt\n" +
