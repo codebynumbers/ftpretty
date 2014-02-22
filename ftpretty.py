@@ -45,7 +45,6 @@ class ftpretty(object):
             return method(*args, **kwargs)
         return wrapper
 
-
     def get(self, remote, local=None):
         """ Gets the file from FTP server
 
@@ -73,7 +72,6 @@ class ftpretty(object):
             local_file.close()
 
         return None
-
 
     def put(self, local, remote, contents=None):
         """ Puts a local file (or contents) on to the FTP server 
@@ -108,7 +106,6 @@ class ftpretty(object):
             self.conn.cwd(current)
         return size
 
-
     def list(self, remote='.', extra=False):
         """ Return directory list """
         if not extra:
@@ -116,11 +113,6 @@ class ftpretty(object):
         self.tmp_output = []
         self.conn.dir(remote, self._collector)
         return split_file_info(self.tmp_output)
-
-    def _collector(self, line):
-        """ Helper for collecting output from dir() """
-        self.tmp_output.append(line)
-
 
     def descend(self, remote, force=False):
         """ Descend, possibly creating directories as needed """
@@ -134,7 +126,6 @@ class ftpretty(object):
                     self.conn.cwd(directory)
         return self.conn.pwd()
 
-
     def delete(self, remote):
         """ Delete a file from server """
         try:
@@ -143,7 +134,6 @@ class ftpretty(object):
             return False
         else:
             return True        
-
 
     def cd(self, remote):
         """ Change working directory on server """
@@ -154,11 +144,9 @@ class ftpretty(object):
         else:
             return self.pwd()
 
-
     def pwd(self):
         """ Return the current working directory """
         return self.conn.pwd()
-
 
     def close(self):
         """ End the session """
@@ -167,6 +155,9 @@ class ftpretty(object):
         except Exception as exc:
             self.conn.close()
 
+    def _collector(self, line):
+        """ Helper for collecting output from dir() """
+        self.tmp_output.append(line)
 
 def split_file_info(fileinfo):
     """ Parse sane directory output usually ls -l

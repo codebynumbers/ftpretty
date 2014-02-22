@@ -1,62 +1,8 @@
-from ftpretty import ftpretty
-import unittest
 import os
+import unittest
 from datetime import datetime
-
-class MockFTP(object):
-    _current = '.'
-    _files = None
-    _size = 0
-    _dirlist = None
-
-    def storbinary(self, command, f):
-        f.seek(0, os.SEEK_END)
-        self._size = f.tell()
-
-    def retrbinary(self, command, callback):
-        return
-
-    def pwd(self):
-        return self._current
-
-    def nlst(self, dirname=None):
-        return self._files
-
-    def quit(self):
-        return
-
-    def close(self):
-        return
-
-    def mkd(self, dirname):
-        return
-
-    def rmd(self, dirname):
-        return
-
-    def delete(self, filename):
-        return "OK"
-
-    def rename(self, fromname, toname):
-        return
-
-    def cwd(self, pathname):
-        self._current = pathname
-
-    def size(self, filename):
-        return self._size
-
-    def dir(self, dirname, callback):
-        for line in self._dirlist.splitlines():
-            callback(line)
-
-    def _set_files(self, files):
-        self._files = files
-
-    def _set_dirlist(self, dirlist):
-        self._dirlist = dirlist
-
-
+from ftpretty import ftpretty
+from mock_ftp import MockFTP
 
 class FtprettyTestCase(unittest.TestCase):
 
@@ -75,7 +21,12 @@ class FtprettyTestCase(unittest.TestCase):
     def test_put(self):
         size = self.pretty.put('AUTHORS.rst', 'AUTHORS.rst')
         self.assertEquals(size, os.path.getsize('AUTHORS.rst'))
-        
+    
+    def test_get(self):
+        self.pretty.get('remote_file.txt', 'local_copy.txt')
+        self.assertTrue(os.path.isfile('local_copy.txt'))
+        os.unlink('local_copy.txt')
+                
     def test_dir_parse(self):
         self.mock_ftp._set_dirlist("-rw-rw-r-- 1 rharrigan www   47 Feb 20 11:39 Cool.txt\n" +
                        "-rw-rw-r-- 1 rharrigan nobody 2085 Feb 21 13:27 multi word name.png\n" +
@@ -93,12 +44,7 @@ class FtprettyTestCase(unittest.TestCase):
         self.assertEquals(files[2]['owner'], 'rharrigan')
         self.assertEquals(files[2]['group'], 'wheel')
 
-        
 
-    def test_get(self):
-        self.pretty.get('remote_file.txt', 'local_copy.txt')
-        self.assertTrue(os.path.isfile('local_copy.txt'))
-        os.unlink('local_copy.txt')
 
 def suite():
     loader = unittest.TestLoader()

@@ -24,6 +24,6 @@ setup(name='ftpretty',
       install_requires = [
         'python-dateutil',
       ],
-      test_suite = 'test_ftpretty.suite',
+      test_suite = 'tests.test_ftpretty.suite',
      )
 
