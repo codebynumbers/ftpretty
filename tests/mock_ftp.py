@@ -48,6 +48,12 @@ class MockFTP(object):
         for line in self._dirlist.splitlines():
             callback(line)
 
+    def sendcmd(self, command):
+        return command
+
+    def set_pasv(self, passive):
+        return passive
+
     def _set_files(self, files):
         self._files = files
 
