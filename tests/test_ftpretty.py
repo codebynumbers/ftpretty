@@ -13,7 +13,20 @@ class FtprettyTestCase(unittest.TestCase):
     def test_cd(self):
         self.pretty.cd('photos/nature/mountains')
         self.assertEquals(self.pretty.pwd(), 'photos/nature/mountains')
-        self.assertRaises(Exception, self.pretty.cd('photos//nature/mountains'))
+        self.pretty._set_exists(False)
+        self.assertRaises(Exception, self.pretty.cd('blah'))
+
+    def test_cd_up(self):
+        self.pretty.cd('photos/nature/mountains')
+        self.pretty.cd('../..')
+        self.assertEquals(self.pretty.pwd(), 'photos')
+
+    def test_descend(self):
+        self.pretty._set_exists(False)
+        self.pretty.descend('photos/nature', True)
+        self.pretty._set_exists(True)
+        self.pretty.cd('mountains')
+        self.assertEquals(self.pretty.pwd(), 'photos/nature/mountains')
 
     def test_list(self):
         self.mock_ftp._set_files(['a.txt', 'b.txt'])
@@ -30,7 +43,8 @@ class FtprettyTestCase(unittest.TestCase):
 
     def test_delete(self):
         self.assertTrue(self.pretty.delete('remote_file.txt'))
-        self.assertRaises(Exception, self.pretty.delete('photos//nature/remote.txt'))
+        self.pretty._set_exists(False)
+        self.assertRaises(Exception, self.pretty.delete('photos/nature/remote.txt'))
 
     def test_dir_parse(self):
         self.mock_ftp._set_dirlist("-rw-rw-r-- 1 rharrigan www   47 Feb 20 11:39 Cool.txt\n" +

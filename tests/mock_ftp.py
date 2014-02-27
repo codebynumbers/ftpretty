@@ -1,12 +1,16 @@
 import os
+from collections import deque
 
 class MockFTP(object):
     """ Mock FTP lib for testing """
-    _current = '.'
-    _files = None
-    _size = 0
-    _dirlist = None
 
+    def __init__(self):
+        self._files = None
+        self._size = 0
+        self._dirlist = None
+        self._exists = True
+        self._stack = deque()
+        
     def storbinary(self, command, f):
         f.seek(0, os.SEEK_END)
         self._size = f.tell()
@@ -15,7 +19,7 @@ class MockFTP(object):
         return
 
     def pwd(self):
-        return self._current
+        return "/".join(self._stack)
 
     def nlst(self, dirname=None):
         return self._files
@@ -33,7 +37,7 @@ class MockFTP(object):
         return
 
     def delete(self, filename):
-        if '//' in filename:
+        if not self._exists:
             raise Exception("Doesn't exist")
         return True
 
@@ -41,9 +45,14 @@ class MockFTP(object):
         return
 
     def cwd(self, pathname):
-        if '//' in pathname:
+        if not self._exists:
+            self._exists = True
             raise Exception("Doesn't exist")
-        self._current = pathname
+        for dir in pathname.split("/"):
+            if dir == '..':
+                self._stack.pop()
+            else:
+                self._stack.append(dir)
 
     def size(self, filename):
         return self._size
@@ -69,3 +78,6 @@ class MockFTP(object):
 
     def _set_dirlist(self, dirlist):
         self._dirlist = dirlist
+
+    def _set_exists(self, exists):
+        self._exists = exists
