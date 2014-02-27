@@ -10,12 +10,14 @@ class MockFTP(object):
         self._dirlist = None
         self._exists = True
         self._stack = deque()
-        
+        self._contents = ''
+
     def storbinary(self, command, f):
         f.seek(0, os.SEEK_END)
         self._size = f.tell()
 
     def retrbinary(self, command, callback):
+        callback(self._contents)
         return
 
     def pwd(self):
@@ -81,3 +83,6 @@ class MockFTP(object):
 
     def _set_exists(self, exists):
         self._exists = exists
+
+    def _set_contents(self, contents):
+        self._contents = contents
