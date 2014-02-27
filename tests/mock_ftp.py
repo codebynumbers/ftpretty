@@ -33,12 +33,16 @@ class MockFTP(object):
         return
 
     def delete(self, filename):
+        if '//' in filename:
+            raise Exception("Doesn't exist")
         return True
 
     def rename(self, fromname, toname):
         return
 
     def cwd(self, pathname):
+        if '//' in pathname:
+            raise Exception("Doesn't exist")
         self._current = pathname
 
     def size(self, filename):
@@ -53,6 +57,12 @@ class MockFTP(object):
 
     def set_pasv(self, passive):
         return passive
+
+    def quit(self):
+        raise Exception('Fake a a problem with quit')
+
+    def close(self):
+        return True
 
     def _set_files(self, files):
         self._files = files

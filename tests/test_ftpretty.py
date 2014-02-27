@@ -13,6 +13,7 @@ class FtprettyTestCase(unittest.TestCase):
     def test_cd(self):
         self.pretty.cd('photos/nature/mountains')
         self.assertEquals(self.pretty.pwd(), 'photos/nature/mountains')
+        self.assertRaises(Exception, self.pretty.cd('photos//nature/mountains'))
 
     def test_list(self):
         self.mock_ftp._set_files(['a.txt', 'b.txt'])
@@ -29,6 +30,7 @@ class FtprettyTestCase(unittest.TestCase):
 
     def test_delete(self):
         self.assertTrue(self.pretty.delete('remote_file.txt'))
+        self.assertRaises(Exception, self.pretty.delete('photos//nature/remote.txt'))
 
     def test_dir_parse(self):
         self.mock_ftp._set_dirlist("-rw-rw-r-- 1 rharrigan www   47 Feb 20 11:39 Cool.txt\n" +
@@ -53,6 +55,8 @@ class FtprettyTestCase(unittest.TestCase):
     def test_set_pasv(self):
         pretty = ftpretty(None, None, None, ftp_conn=self.mock_ftp, passive=False)
 
+    def test_close(self):
+        self.pretty.close()
 
 def suite():
     loader = unittest.TestLoader()
