@@ -47,6 +47,11 @@ class FtprettyTestCase(unittest.TestCase):
         self.assertEquals(files[2]['owner'], 'rharrigan')
         self.assertEquals(files[2]['group'], 'wheel')
 
+    def test_fallthrough(self):
+        self.assertTrue(self.pretty.sendcmd('hello'), 'hello')
+
+    def test_set_pasv(self):
+        pretty = ftpretty(None, None, None, ftp_conn=self.mock_ftp, passive=False)
 
 
 def suite():
