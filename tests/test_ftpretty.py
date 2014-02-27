@@ -32,9 +32,18 @@ class FtprettyTestCase(unittest.TestCase):
         self.mock_ftp._set_files(['a.txt', 'b.txt'])
         self.assertEquals(len(self.pretty.list()), 2)
 
-    def test_put(self):
+    def test_put_filename(self):
         size = self.pretty.put('AUTHORS.rst', 'AUTHORS.rst')
         self.assertEquals(size, os.path.getsize('AUTHORS.rst'))
+
+    def test_put_file(self):
+        with open('AUTHORS.rst') as file:
+            size = self.pretty.put(file, 'AUTHORS.rst')
+            self.assertEquals(size, os.path.getsize('AUTHORS.rst'))
+
+    def test_put_contents(self):
+        size = self.pretty.put(None, 'AUTHORS.rst', 'test string')
+        self.assertEquals(size, len('test string'))
     
     def test_get(self):
         self.mock_ftp._set_contents('hello_get')
