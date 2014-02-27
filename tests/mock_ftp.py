@@ -33,7 +33,7 @@ class MockFTP(object):
         return
 
     def delete(self, filename):
-        return "OK"
+        return True
 
     def rename(self, fromname, toname):
         return

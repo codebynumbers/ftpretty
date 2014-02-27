@@ -26,7 +26,10 @@ class FtprettyTestCase(unittest.TestCase):
         self.pretty.get('remote_file.txt', 'local_copy.txt')
         self.assertTrue(os.path.isfile('local_copy.txt'))
         os.unlink('local_copy.txt')
-                
+
+    def test_delete(self):
+        self.assertTrue(self.pretty.delete('remote_file.txt'))
+
     def test_dir_parse(self):
         self.mock_ftp._set_dirlist("-rw-rw-r-- 1 rharrigan www   47 Feb 20 11:39 Cool.txt\n" +
                        "-rw-rw-r-- 1 rharrigan nobody 2085 Feb 21 13:27 multi word name.png\n" +
