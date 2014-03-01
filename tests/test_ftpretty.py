@@ -13,24 +13,67 @@ class FtprettyTestCase(unittest.TestCase):
     def test_cd(self):
         self.pretty.cd('photos/nature/mountains')
         self.assertEquals(self.pretty.pwd(), 'photos/nature/mountains')
-        self.assertRaises(Exception, self.pretty.cd('photos//nature/mountains'))
+        self.pretty._set_exists(False)
+        self.assertRaises(Exception, self.pretty.cd('blah'))
+
+    def test_cd_up(self):
+        self.pretty.cd('photos/nature/mountains')
+        self.pretty.cd('../..')
+        self.assertEquals(self.pretty.pwd(), 'photos')
+
+    def test_descend(self):
+        self.pretty._set_exists(False)
+        self.pretty.descend('photos/nature', True)
+        self.pretty._set_exists(True)
+        self.pretty.cd('mountains')
+        self.assertEquals(self.pretty.pwd(), 'photos/nature/mountains')
 
     def test_list(self):
         self.mock_ftp._set_files(['a.txt', 'b.txt'])
         self.assertEquals(len(self.pretty.list()), 2)
 
-    def test_put(self):
+    def test_put_filename(self):
         size = self.pretty.put('AUTHORS.rst', 'AUTHORS.rst')
         self.assertEquals(size, os.path.getsize('AUTHORS.rst'))
+
+    def test_put_file(self):
+        with open('AUTHORS.rst') as file:
+            size = self.pretty.put(file, 'AUTHORS.rst')
+            self.assertEquals(size, os.path.getsize('AUTHORS.rst'))
+
+    def test_put_contents(self):
+        size = self.pretty.put(None, 'AUTHORS.rst', 'test string')
+        self.assertEquals(size, len('test string'))
     
     def test_get(self):
+        self.mock_ftp._set_contents('hello_get')
+        self.assertFalse(os.path.isfile('local_copy.txt'))
         self.pretty.get('remote_file.txt', 'local_copy.txt')
         self.assertTrue(os.path.isfile('local_copy.txt'))
+        with open('local_copy.txt') as file:
+            self.assertEquals(file.read(), 'hello_get')
         os.unlink('local_copy.txt')
+
+    def test_get_filehandle(self):
+        self.mock_ftp._set_contents('hello_file')
+        self.assertFalse(os.path.isfile('local_copy.txt'))
+        outfile = open('local_copy.txt', 'w')
+        self.pretty.get('remote_file.txt', outfile)
+        outfile.close()
+        self.assertTrue(os.path.isfile('local_copy.txt'))
+        with open('local_copy.txt') as file:
+            self.assertEquals(file.read(), 'hello_file')
+        os.unlink('local_copy.txt')
+
+    def test_get_contents(self):
+        self.mock_ftp._set_contents('hello')
+        contents = self.pretty.get('remote_file.txt')
+        self.assertEquals(contents, 'hello')
 
     def test_delete(self):
         self.assertTrue(self.pretty.delete('remote_file.txt'))
-        self.assertRaises(Exception, self.pretty.delete('photos//nature/remote.txt'))
+        self.pretty._set_exists(False)
+        self.assertRaises(Exception, self.pretty.delete('photos/nature/remote.txt'))
 
     def test_dir_parse(self):
         self.mock_ftp._set_dirlist("-rw-rw-r-- 1 rharrigan www   47 Feb 20 11:39 Cool.txt\n" +
