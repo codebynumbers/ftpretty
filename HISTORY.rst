@@ -1,6 +1,10 @@
 Changelog for ftpretty
 ======================
 
+0.1.7 (2014-03-03)
+------------------
+   - Add tests
+
 0.1.6 (2014-02-17)
 ------------------
    - Parse file dates in list(extra=True) into datetime objects
