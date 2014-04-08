@@ -101,13 +101,21 @@ class ftpretty(object):
         return size
 
 
-    def list(self, remote='.', extra=False):
+    def list(self, remote='.', extra=False, remove_relative_paths=False):
         """ Return directory list """
         if not extra:
-            return self.conn.nlst(remote)
+            if remove_relative_paths:
+                return self.conn.nlst(remote)[2:]
+            else:
+                return self.conn.nlst(remote)
+
         self.tmp_output = []
         self.conn.dir(remote, self._collector)
-        return self.split_file_info(self.tmp_output)
+
+        if remove_relative_paths:
+            return self.split_file_info(self.tmp_output)[2:]
+        else:
+            return self.split_file_info(self.tmp_output)
 
 
     def _collector(self, line):
