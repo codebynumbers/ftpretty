@@ -1,6 +1,10 @@
 Changelog for ftpretty
 ======================
 
+0.1.8 (2014-04-08)
+------------------
+   - Add ability to filter dotfiles from directory list
+
 0.1.7 (2014-03-03)
 ------------------
    - Add tests
