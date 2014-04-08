@@ -20,6 +20,7 @@ import datetime
 
 class ftpretty(object):
     conn = None
+    relative_paths = {'.', '..'}
 
     def __init__(self, host, user, password, secure=False, passive=True, **kwargs): 
         if secure:
@@ -103,19 +104,24 @@ class ftpretty(object):
 
     def list(self, remote='.', extra=False, remove_relative_paths=False):
         """ Return directory list """
-        if not extra:
-            if remove_relative_paths:
-                return self.conn.nlst(remote)[2:]
-            else:
-                return self.conn.nlst(remote)
-
-        self.tmp_output = []
-        self.conn.dir(remote, self._collector)
+        if extra:
+            self.tmp_output = []
+            self.conn.dir(remote, self._collector)
+            directory_list = self.split_file_info(self.tmp_output)
+        else:
+            directory_list = self.conn.nlst(remote)
 
         if remove_relative_paths:
-            return self.split_file_info(self.tmp_output)[2:]
+            return filter(self.is_not_relative_path, directory_list)
+
+        return directory_list
+
+
+    def is_not_relative_path(self, path):
+        if isinstance(path, dict):
+            return path.get('name') not in self.relative_paths
         else:
-            return self.split_file_info(self.tmp_output)
+            return path not in self.relative_paths
 
 
     def _collector(self, line):
