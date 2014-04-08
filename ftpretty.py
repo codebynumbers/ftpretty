@@ -23,6 +23,7 @@ class ftpretty(object):
     """ A wrapper for FTP connections """
     conn = None
     tmp_output = None
+    relative_paths = {'.', '..'}
 
     def __init__(self, host, user, password, 
         secure=False, passive=True, ftp_conn=None, **kwargs):
@@ -106,13 +107,25 @@ class ftpretty(object):
             self.conn.cwd(current)
         return size
 
-    def list(self, remote='.', extra=False):
+    def list(self, remote='.', extra=False, remove_relative_paths=False):
         """ Return directory list """
-        if not extra:
-            return self.conn.nlst(remote)
-        self.tmp_output = []
-        self.conn.dir(remote, self._collector)
-        return split_file_info(self.tmp_output)
+        if extra:
+            self.tmp_output = []
+            self.conn.dir(remote, self._collector)
+            directory_list = split_file_info(self.tmp_output)
+        else:
+            directory_list = self.conn.nlst(remote)
+
+        if remove_relative_paths:
+            return filter(self.is_not_relative_path, directory_list)
+
+        return directory_list
+
+    def is_not_relative_path(self, path):
+        if isinstance(path, dict):
+            return path.get('name') not in self.relative_paths
+        else:
+            return path not in self.relative_paths
 
     def descend(self, remote, force=False):
         """ Descend, possibly creating directories as needed """

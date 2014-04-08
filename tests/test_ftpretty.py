@@ -32,6 +32,10 @@ class FtprettyTestCase(unittest.TestCase):
         self.mock_ftp._set_files(['a.txt', 'b.txt'])
         self.assertEquals(len(self.pretty.list()), 2)
 
+    def test_list_relative_paths(self):
+        self.mock_ftp._set_files(['.', '..', 'a.txt'])
+        self.assertEquals(len(self.pretty.list(remove_relative_paths=True)), 1)
+
     def test_put_filename(self):
         size = self.pretty.put('AUTHORS.rst', 'AUTHORS.rst')
         self.assertEquals(size, os.path.getsize('AUTHORS.rst'))
