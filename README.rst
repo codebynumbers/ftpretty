@@ -1,5 +1,18 @@
+========
 ftpretty
 ========
+
+.. image:: https://travis-ci.org/codebynumbers/ftpretty.png?branch=master
+   :target: https://travis-ci.org/codebynumbers/ftpretty
+
+.. image:: https://coveralls.io/repos/codebynumbers/ftpretty/badge.png?branch=master
+   :target: https://coveralls.io/r/codebynumbers/ftpretty?branch=master
+
+.. image:: https://pypip.in/v/ftpretty/badge.png
+   :target: https://pypi.python.org/pypi/ftpretty
+
+.. image:: https://pypip.in/d/ftpretty/badge.png
+   :target: https://pypi.python.org/pypi/ftpretty
 
 A wrapper for simple FTP operations: get, put, list etc.
 
@@ -7,7 +20,8 @@ The goal of this library is to provide a frictionless experience to FTPing files
 in way similar to Amazon's s3cmd command line tool. The API should be intuitive
 with the order of arguments reflecting the transfer direction of bytes.
 
-Transfers are assumed to be binary.
+Transfers are assumed to be binary. 
+
 
 Unrecognized commands fall through to the underlying FTP or FTP_TLS connection object
 
@@ -18,9 +32,14 @@ Examples
 
     from ftpretty import ftpretty
 
+    # Minimal
+    f = ftpretty(host, user, pass)
+
+    # Advanced
     # kwargs are passed to underlying FTP or FTP_TLS connection
-    # secure argument switches to an FTP_TLS connection
-    f = ftpretty(host, user, pass, secure=False, timeout=10)
+    # secure=True argument switches to an FTP_TLS connection default is False
+    # passive=False disable passive connection, True is the default
+    f = ftpretty(host, user, pass, secure=True, passive=False, timeout=10)
 
     # Get a file, save it locally
     f.get('someremote/file/on/server.txt', '/tmp/localcopy/server.txt')
@@ -62,6 +81,7 @@ Examples
 
     f.list('someremote/folder', extra=True)
     [{'date': 'Feb 11',
+      'datetime': datetime.datetime(2014, 2, 11, 2, 3),
       'directory': 'd',
       'group': '1006',
       'items': '3',
@@ -72,6 +92,7 @@ Examples
       'time': '02:03',
       'year': '2014'},
      {'date': 'Feb 11',
+      'datetime': datetime.datetime(2014, 2, 11, 2, 35),
       'directory': 'd',
       'group': '1006',
       'items': '3',
