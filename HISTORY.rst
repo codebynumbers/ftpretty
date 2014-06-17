@@ -1,6 +1,10 @@
 Changelog for ftpretty
 ======================
 
+0.1.9 (2014-06-17)
+------------------
+   - Support for Python 2.6
+
 0.1.8 (2014-04-08)
 ------------------
    - Add ability to filter dotfiles from directory list
