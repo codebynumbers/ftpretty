@@ -23,7 +23,7 @@ class ftpretty(object):
     """ A wrapper for FTP connections """
     conn = None
     tmp_output = None
-    relative_paths = {'.', '..'}
+    relative_paths = set(['.', '..'])
 
     def __init__(self, host, user, password, 
         secure=False, passive=True, ftp_conn=None, **kwargs):
