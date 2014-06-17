@@ -12,7 +12,11 @@
     f.close()
     
 """
-from ftplib import FTP, FTP_TLS
+from ftplib import FTP
+try:
+    from ftplib import FTP_TLS
+except ImportError:
+    FTP_TLS = None
 import os
 import cStringIO
 import re
@@ -30,7 +34,7 @@ class ftpretty(object):
 
         if ftp_conn:
             self.conn = ftp_conn
-        elif secure:
+        elif secure and FTP_TLS:
             self.conn = FTP_TLS(host=host, user=user, passwd=password, **kwargs)
             self.conn.prot_p()
         else:
