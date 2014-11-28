@@ -4,6 +4,7 @@ from datetime import datetime
 from ftpretty import ftpretty
 from mock_ftp import MockFTP
 
+
 class FtprettyTestCase(unittest.TestCase):
 
     def setUp(self):
@@ -48,7 +49,7 @@ class FtprettyTestCase(unittest.TestCase):
     def test_put_contents(self):
         size = self.pretty.put(None, 'AUTHORS.rst', 'test string')
         self.assertEquals(size, len('test string'))
-    
+
     def test_get(self):
         self.mock_ftp._set_contents('hello_get')
         self.assertFalse(os.path.isfile('local_copy.txt'))
@@ -96,14 +97,33 @@ class FtprettyTestCase(unittest.TestCase):
         self.assertEquals(files[2]['owner'], 'rharrigan')
         self.assertEquals(files[2]['group'], 'wheel')
 
+    def test_dir_parse_patched_regex(self):
+        self.mock_ftp._set_dirlist("-rw-rw-r-- 1 rharrigan read-only   47 Feb 20 11:39 Cool.txt\n" +
+                       "-rw-rw-r-- 1 rharrigan nobody 2085 Feb 21 13:27 multi word name.png\n" +
+                       "-rw-rw-r-- 1 rharrigan dodgy-group-name  195 Feb 20 2013 README.txt\n")
+        files = self.pretty.list(extra=True)
+        self.assertEquals(len(files), 3)
+
+        current_year = int(datetime.now().strftime('%Y'))
+        self.assertEquals(files[0]['group'], 'read-only')
+        self.assertEquals(files[1]['name'], 'multi word name.png')
+        self.assertEquals(files[1]['datetime'], datetime(current_year, 2, 21, 13, 27, 0))
+
+        self.assertEquals(files[2]['datetime'], datetime(2013, 2, 20, 0, 0, 0))
+        self.assertEquals(files[2]['size'], 195)
+        self.assertEquals(files[2]['name'], 'README.txt')
+        self.assertEquals(files[2]['owner'], 'rharrigan')
+        self.assertEquals(files[2]['group'], 'dodgy-group-name')
+
     def test_fallthrough(self):
         self.assertTrue(self.pretty.sendcmd('hello'), 'hello')
 
     def test_set_pasv(self):
-        pretty = ftpretty(None, None, None, ftp_conn=self.mock_ftp, passive=False)
+        ftpretty(None, None, None, ftp_conn=self.mock_ftp, passive=False)
 
     def test_close(self):
         self.pretty.close()
+
 
 def suite():
     loader = unittest.TestLoader()
@@ -111,6 +131,6 @@ def suite():
     suite.addTest(loader.loadTestsFromTestCase(FtprettyTestCase))
     return suite
 
+
 if __name__ == '__main__':
     unittest.TextTestRunner(verbosity=2).run(suite())
-
