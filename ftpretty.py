@@ -1,4 +1,4 @@
-""" A simple API wrapper for FTPing files 
+""" A simple API wrapper for FTPing files
 
     you should be able to this:
 
@@ -10,7 +10,7 @@
     f.cd(remote)
     f.delete(remote)
     f.close()
-    
+
 """
 from ftplib import FTP
 try:
@@ -23,14 +23,15 @@ import re
 import datetime
 from dateutil import parser
 
+
 class ftpretty(object):
     """ A wrapper for FTP connections """
     conn = None
     tmp_output = None
     relative_paths = set(['.', '..'])
 
-    def __init__(self, host, user, password, 
-        secure=False, passive=True, ftp_conn=None, **kwargs):
+    def __init__(self, host, user, password,
+            secure=False, passive=True, ftp_conn=None, **kwargs):
 
         if ftp_conn:
             self.conn = ftp_conn
@@ -57,12 +58,12 @@ class ftpretty(object):
                 a string: path to output file
                 a file: opened for writing
                 None: contents are returned
-        """       
+        """
         if isinstance(local, file):
             local_file = local
         elif local is None:
             local_file = cStringIO.StringIO()
-        else:   
+        else:
             local_file = open(local, 'wb')
 
         self.conn.retrbinary("RETR %s" % remote, local_file.write)
@@ -73,19 +74,19 @@ class ftpretty(object):
             contents = local_file.getvalue()
             local_file.close()
             return contents
-        else:   
+        else:
             local_file.close()
 
         return None
 
     def put(self, local, remote, contents=None):
-        """ Puts a local file (or contents) on to the FTP server 
+        """ Puts a local file (or contents) on to the FTP server
 
             local can be:
                 a string: path to inpit file
                 a file: opened for reading
                 None: contents are pushed
-        """       
+        """
         remote_dir = os.path.dirname(remote)
         remote_file = os.path.basename(local)\
             if remote.endswith('/') else os.path.basename(remote)
@@ -137,7 +138,7 @@ class ftpretty(object):
         for directory in remote_dirs:
             try:
                 self.conn.cwd(directory)
-            except Exception as exc:
+            except Exception:
                 if force:
                     self.conn.mkd(directory)
                     self.conn.cwd(directory)
@@ -147,16 +148,16 @@ class ftpretty(object):
         """ Delete a file from server """
         try:
             self.conn.delete(remote)
-        except Exception as exc:
+        except Exception:
             return False
         else:
-            return True        
+            return True
 
     def cd(self, remote):
         """ Change working directory on server """
         try:
             self.conn.cwd(remote)
-        except Exception as exc:
+        except Exception:
             return False
         else:
             return self.pwd()
@@ -169,36 +170,38 @@ class ftpretty(object):
         """ End the session """
         try:
             self.conn.quit()
-        except Exception as exc:
+        except Exception:
             self.conn.close()
 
     def _collector(self, line):
         """ Helper for collecting output from dir() """
         self.tmp_output.append(line)
 
+
 def split_file_info(fileinfo):
     """ Parse sane directory output usually ls -l
-        Adapted from https://gist.github.com/tobiasoberrauch/2942716 
+        Adapted from https://gist.github.com/tobiasoberrauch/2942716
     """
     current_year = datetime.datetime.now().strftime('%Y')
-    files = []        
+    files = []
     for line in fileinfo:
         parts = re.split(
-            '^([\\-dbclps])' +                # Directory flag [1]
-            '([\\-rwxs]{9})\\s+' +            # Permissions [2]
-            '(\\d+)\\s+' +                    # Number of items [3]
-            '(\\w+)\\s+' +                    # File owner [4]
-            '(\\w+)\\s+' +                    # File group [5]
-            '(\\d+)\\s+' +                    # File size in bytes [6]
-            '(\\w{3}\\s+\\d{1,2})\\s+' +       # 3-char month and 1/2-char day of the month [7]
-            '(\\d{1,2}:\\d{1,2}|\\d{4})\\s+' + # Time or year (need to check conditions) [+= 7]
-            '(.+)$'                       # File/directory name [8]
-            , line)
+            r'^([\-dbclps])' +                  # Directory flag [1]
+            r'([\-rwxs]{9})\s+' +               # Permissions [2]
+            r'(\d+)\s+' +                       # Number of items [3]
+            r'([a-zA-Z0-9_-]+)\s+' +            # File owner [4]
+            r'([a-zA-Z0-9_-]+)\s+' +            # File group [5]
+            r'(\d+)\s+' +                       # File size in bytes [6]
+            r'(\w{3}\s+\d{1,2})\s+' +           # 3-char month and 1/2-char day of the month [7]
+            r'(\d{1,2}:\d{1,2}|\d{4})\s+' +     # Time or year (need to check conditions) [+= 7]
+            r'(.+)$',                           # File/directory name [8]
+            line
+        )
 
         date = parts[7]
         time = parts[8] if ':' in parts[8] else '00:00'
         year = parts[8] if ':' not in parts[8] else current_year
-        dt_obj = parser.parse("%s %s %s" % (date, year, time) )
+        dt_obj = parser.parse("%s %s %s" % (date, year, time))
 
         files.append({
             'directory': parts[1],
@@ -212,6 +215,5 @@ def split_file_info(fileinfo):
             'year': year,
             'name': parts[9],
             'datetime': dt_obj
-            }) 
+        })
     return files
-
