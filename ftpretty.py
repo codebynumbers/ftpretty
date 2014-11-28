@@ -186,16 +186,17 @@ def split_file_info(fileinfo):
     files = []
     for line in fileinfo:
         parts = re.split(
-            '^([\\-dbclps])' +                # Directory flag [1]
-            '([\\-rwxs]{9})\\s+' +            # Permissions [2]
-            '(\\d+)\\s+' +                    # Number of items [3]
-            '(\\w+)\\s+' +                    # File owner [4]
-            '(\\w+)\\s+' +                    # File group [5]
-            '(\\d+)\\s+' +                    # File size in bytes [6]
-            '(\\w{3}\\s+\\d{1,2})\\s+' +       # 3-char month and 1/2-char day of the month [7]
-            '(\\d{1,2}:\\d{1,2}|\\d{4})\\s+' + # Time or year (need to check conditions) [+= 7]
-            '(.+)$'                       # File/directory name [8]
-            , line)
+            r'^([\-dbclps])' +                  # Directory flag [1]
+            r'([\-rwxs]{9})\s+' +               # Permissions [2]
+            r'(\d+)\s+' +                       # Number of items [3]
+            r'(\w+)\s+' +                       # File owner [4]
+            r'(\w+)\s+' +                       # File group [5]
+            r'(\d+)\s+' +                       # File size in bytes [6]
+            r'(\w{3}\s+\d{1,2})\s+' +           # 3-char month and 1/2-char day of the month [7]
+            r'(\d{1,2}:\d{1,2}|\d{4})\s+' +     # Time or year (need to check conditions) [+= 7]
+            r'(.+)$',                           # File/directory name [8]
+            line
+        )
 
         date = parts[7]
         time = parts[8] if ':' in parts[8] else '00:00'
