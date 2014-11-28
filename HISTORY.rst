@@ -1,6 +1,11 @@
 Changelog for ftpretty
 ======================
 
+0.2.0 (2014-11-28)
+------------------
+   - Fixed an edge case for list
+   - PEP 8 fixes
+
 0.1.9 (2014-06-17)
 ------------------
    - Support for Python 2.6
