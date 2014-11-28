@@ -2,7 +2,8 @@
 from setuptools import setup
 import os
 
-__version__ = '0.1.9'
+__version__ = '0.2.0'
+
 
 def read(*paths):
     """Build a file path from *paths* and return the contents."""
