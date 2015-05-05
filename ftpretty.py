@@ -59,7 +59,7 @@ class ftpretty(object):
                 a file: opened for writing
                 None: contents are returned
         """
-        if isinstance(local, file):
+        if isinstance(local, io.IOBase):
             local_file = local
         elif local is None:
             local_file = io.StringIO()
@@ -68,7 +68,7 @@ class ftpretty(object):
 
         self.conn.retrbinary("RETR %s" % remote, local_file.write)
 
-        if isinstance(local, file):
+        if isinstance(local, io.IOBase):
             local_file = local
         elif local is None:
             contents = local_file.getvalue()
@@ -94,7 +94,7 @@ class ftpretty(object):
         if contents:
             # local is ignored if contents is set
             local_file = io.StringIO(contents)
-        elif isinstance(local, file):
+        elif isinstance(local, io.IOBase):
             local_file = local
         else:
             local_file = open(local, 'rb')
