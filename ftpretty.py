@@ -18,7 +18,7 @@ try:
 except ImportError:
     FTP_TLS = None
 import os
-import cStringIO
+import io
 import re
 import datetime
 from dateutil import parser
@@ -62,7 +62,7 @@ class ftpretty(object):
         if isinstance(local, file):
             local_file = local
         elif local is None:
-            local_file = cStringIO.StringIO()
+            local_file = io.StringIO()
         else:
             local_file = open(local, 'wb')
 
@@ -93,7 +93,7 @@ class ftpretty(object):
 
         if contents:
             # local is ignored if contents is set
-            local_file = cStringIO.StringIO(contents)
+            local_file = io.StringIO(contents)
         elif isinstance(local, file):
             local_file = local
         else:
@@ -106,7 +106,7 @@ class ftpretty(object):
             self.conn.storbinary('STOR %s' % remote_file, local_file)
             size = self.conn.size(remote_file)
         except Exception as exc:
-            print exc
+            print(exc)
         finally:
             local_file.close()
             self.conn.cwd(current)
@@ -122,7 +122,7 @@ class ftpretty(object):
             directory_list = self.conn.nlst(remote)
 
         if remove_relative_paths:
-            return filter(self.is_not_relative_path, directory_list)
+            return list(filter(self.is_not_relative_path, directory_list))
 
         return directory_list
 
