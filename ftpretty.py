@@ -13,6 +13,7 @@
 
 """
 from ftplib import FTP
+from __future__ import print_function
 try:
     from ftplib import FTP_TLS
 except ImportError:
@@ -106,7 +107,7 @@ class ftpretty(object):
             self.conn.storbinary('STOR %s' % remote_file, local_file)
             size = self.conn.size(remote_file)
         except Exception as exc:
-            print exc
+            print(exc)
         finally:
             local_file.close()
             self.conn.cwd(current)
