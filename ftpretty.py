@@ -19,7 +19,10 @@ try:
 except ImportError:
     FTP_TLS = None
 import os
-import cStringIO
+try:
+    from io import StringIO
+except ImportError:
+    from cStringIO import StringIO
 import re
 import datetime
 from dateutil import parser
@@ -63,7 +66,7 @@ class ftpretty(object):
         if isinstance(local, file):
             local_file = local
         elif local is None:
-            local_file = cStringIO.StringIO()
+            local_file = StringIO()
         else:
             local_file = open(local, 'wb')
 
@@ -94,7 +97,7 @@ class ftpretty(object):
 
         if contents:
             # local is ignored if contents is set
-            local_file = cStringIO.StringIO(contents)
+            local_file = StringIO(contents)
         elif isinstance(local, file):
             local_file = local
         else:
