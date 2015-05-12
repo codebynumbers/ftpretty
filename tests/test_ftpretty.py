@@ -47,7 +47,7 @@ class FtprettyTestCase(unittest.TestCase):
             self.assertEquals(size, os.path.getsize('AUTHORS.rst'))
 
     def test_put_contents(self):
-        size = self.pretty.put(None, 'AUTHORS.rst', 'test string')
+        size = self.pretty.put(None, 'AUTHORS.rst', u'test string')
         self.assertEquals(size, len('test string'))
 
     def test_get(self):
@@ -71,9 +71,9 @@ class FtprettyTestCase(unittest.TestCase):
         os.unlink('local_copy.txt')
 
     def test_get_contents(self):
-        self.mock_ftp._set_contents('hello')
+        self.mock_ftp._set_contents(u'hello')
         contents = self.pretty.get('remote_file.txt')
-        self.assertEquals(contents, 'hello')
+        self.assertEquals(contents, u'hello')
 
     def test_delete(self):
         self.assertTrue(self.pretty.delete('remote_file.txt'))
