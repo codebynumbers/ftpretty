@@ -12,8 +12,8 @@
     f.close()
 
 """
-from ftplib import FTP
 from __future__ import print_function
+from ftplib import FTP
 try:
     from ftplib import FTP_TLS
 except ImportError:
