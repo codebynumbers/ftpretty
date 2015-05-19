@@ -2,7 +2,8 @@ import os
 import unittest
 from datetime import datetime
 from ftpretty import ftpretty
-from mock_ftp import MockFTP
+from compat import PY2
+from .mock_ftp import MockFTP
 
 
 class FtprettyTestCase(unittest.TestCase):
@@ -42,8 +43,8 @@ class FtprettyTestCase(unittest.TestCase):
         self.assertEquals(size, os.path.getsize('AUTHORS.rst'))
 
     def test_put_file(self):
-        with open('AUTHORS.rst') as file:
-            size = self.pretty.put(file, 'AUTHORS.rst')
+        with open('AUTHORS.rst') as file_:
+            size = self.pretty.put(file_, 'AUTHORS.rst')
             self.assertEquals(size, os.path.getsize('AUTHORS.rst'))
 
     def test_put_contents(self):
@@ -51,7 +52,12 @@ class FtprettyTestCase(unittest.TestCase):
         self.assertEquals(size, len('test string'))
 
     def test_get(self):
-        self.mock_ftp._set_contents('hello_get')
+        if PY2:
+            self.mock_ftp._set_contents('hello_get')
+        else:
+            self.mock_ftp._set_contents(b'hello_get')
+        if os.path.exists('local_copy.txt'):
+            os.unlink('local_copy.txt')
         self.assertFalse(os.path.isfile('local_copy.txt'))
         self.pretty.get('remote_file.txt', 'local_copy.txt')
         self.assertTrue(os.path.isfile('local_copy.txt'))
@@ -61,6 +67,8 @@ class FtprettyTestCase(unittest.TestCase):
 
     def test_get_filehandle(self):
         self.mock_ftp._set_contents('hello_file')
+        if os.path.exists('local_copy.txt'):
+            os.unlink('local_copy.txt')
         self.assertFalse(os.path.isfile('local_copy.txt'))
         outfile = open('local_copy.txt', 'w')
         self.pretty.get('remote_file.txt', outfile)

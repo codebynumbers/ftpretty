@@ -13,19 +13,16 @@
 
 """
 from __future__ import print_function
+import os
+import re
+import datetime
 from ftplib import FTP
 try:
     from ftplib import FTP_TLS
 except ImportError:
     FTP_TLS = None
-import os
-try:
-    from io import StringIO
-except ImportError:
-    from cStringIO import StringIO
-import re
-import datetime
 from dateutil import parser
+from compat import StringIO, file_type
 
 
 class ftpretty(object):
@@ -63,16 +60,15 @@ class ftpretty(object):
                 a file: opened for writing
                 None: contents are returned
         """
-        if isinstance(local, file):
+        if isinstance(local, file_type):
             local_file = local
         elif local is None:
             local_file = StringIO()
         else:
             local_file = open(local, 'wb')
-
         self.conn.retrbinary("RETR %s" % remote, local_file.write)
 
-        if isinstance(local, file):
+        if isinstance(local, file_type):
             local_file = local
         elif local is None:
             contents = local_file.getvalue()
@@ -98,7 +94,7 @@ class ftpretty(object):
         if contents:
             # local is ignored if contents is set
             local_file = StringIO(contents)
-        elif isinstance(local, file):
+        elif isinstance(local, file_type):
             local_file = local
         else:
             local_file = open(local, 'rb')
@@ -126,7 +122,7 @@ class ftpretty(object):
             directory_list = self.conn.nlst(remote)
 
         if remove_relative_paths:
-            return filter(self.is_not_relative_path, directory_list)
+            return list(filter(self.is_not_relative_path, directory_list))
 
         return directory_list
 
