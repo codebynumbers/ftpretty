@@ -1,5 +1,8 @@
 env
+env3
 *.pyc
+*.egg
+__pycache__
 dist
 build
 MANIFEST
