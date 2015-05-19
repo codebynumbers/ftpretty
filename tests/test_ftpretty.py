@@ -48,7 +48,7 @@ class FtprettyTestCase(unittest.TestCase):
             self.assertEquals(size, os.path.getsize('AUTHORS.rst'))
 
     def test_put_contents(self):
-        size = self.pretty.put(None, 'AUTHORS.rst', u'test string')
+        size = self.pretty.put(None, 'AUTHORS.rst', 'test string')
         self.assertEquals(size, len('test string'))
 
     def test_get(self):
