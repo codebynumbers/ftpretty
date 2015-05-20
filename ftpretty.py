@@ -22,7 +22,7 @@ try:
 except ImportError:
     FTP_TLS = None
 from dateutil import parser
-from compat import StringIO, file_type
+from compat import buffer_type, file_type
 
 
 class ftpretty(object):
@@ -63,7 +63,7 @@ class ftpretty(object):
         if isinstance(local, file_type):
             local_file = local
         elif local is None:
-            local_file = StringIO()
+            local_file = buffer_type()
         else:
             local_file = open(local, 'wb')
         self.conn.retrbinary("RETR %s" % remote, local_file.write)
@@ -93,7 +93,7 @@ class ftpretty(object):
 
         if contents:
             # local is ignored if contents is set
-            local_file = StringIO(contents)
+            local_file = buffer_type(contents)
         elif isinstance(local, file_type):
             local_file = local
         else:
