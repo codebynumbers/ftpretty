@@ -22,8 +22,9 @@ with the order of arguments reflecting the transfer direction of bytes.
 
 Transfers are assumed to be binary. 
 
-
 Unrecognized commands fall through to the underlying FTP or FTP_TLS connection object
+
+Supports python 2.6, 2.7, 3.3
 
 Examples
 --------
@@ -52,7 +53,7 @@ Examples
 
     or
 
-    # Get a file and return contents
+    # Get a file and return contents (in python 3 contents is bytes)
     contents = f.get('someremote/file/on/server.txt')
 
     # Put a local file to a remote location
@@ -72,7 +73,7 @@ Examples
 
     or
 
-    # Put using string data
+    # Put using string data (in python 3 contents should be bytes)
     f.put(None,  'someremote/file/greeting.txt', contents='blah blah blah')
 
     # Return a list the files in a directory

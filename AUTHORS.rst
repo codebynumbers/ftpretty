@@ -5,4 +5,4 @@ Authors
 - Chris Cannon
 - Philippe Ombredanne
 - Panos Katseas
-
+- Niklas Bivald
