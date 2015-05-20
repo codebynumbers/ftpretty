@@ -20,6 +20,21 @@ setup(
         read('HISTORY.rst') + '\n\n' +
         read('AUTHORS.rst')
     ),
+    classifiers=[
+        "Topic :: Internet :: File Transfer Protocol (FTP)",
+        "Topic :: Utilities",
+        "Development Status :: 4 - Beta",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 2",
+        "Programming Language :: Python :: 2.6",
+        "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.3",
+        "Intended Audience :: Developers",
+        "Intended Audience :: System Administrators",
+    ],
     license='MIT',
     author='Rob Harrigan',
     author_email='harrigan.rob@gmail.com',
