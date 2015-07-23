@@ -2,7 +2,7 @@
 from setuptools import setup
 import os
 
-__version__ = '0.2.1'
+__version__ = '0.2.2'
 
 
 def read(*paths):
@@ -40,7 +40,7 @@ setup(
     author_email='harrigan.rob@gmail.com',
     url='https://github.com/codebynumbers/ftpretty/',
     download_url='https://github.com/codebynumbers/ftpretty/tarball/%s' % __version__,
-    py_modules=['ftpretty'],
+    py_modules=['ftpretty','compat'],
     install_requires = [
         'python-dateutil',
     ],
