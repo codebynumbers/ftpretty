@@ -166,6 +166,10 @@ class ftpretty(object):
         """ Return the current working directory """
         return self.conn.pwd()
 
+    def rename(self, remote_from, remote_to):
+        """ Rename a file on the server """
+        return self.conn.rename(remote_from, remote_to)
+
     def close(self):
         """ End the session """
         try:
