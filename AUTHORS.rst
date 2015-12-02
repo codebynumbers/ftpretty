@@ -6,3 +6,4 @@ Authors
 - Philippe Ombredanne
 - Panos Katseas
 - Niklas Bivald
+- Doug Van Horn

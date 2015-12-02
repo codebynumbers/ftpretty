@@ -9,6 +9,7 @@
     f.list(remote)
     f.cd(remote)
     f.delete(remote)
+    f.rename(remote_from, remote_to)
     f.close()
 
 """
