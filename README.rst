@@ -45,7 +45,7 @@ Examples
     # Get a file, save it locally
     f.get('someremote/file/on/server.txt', '/tmp/localcopy/server.txt')
 
-    or 
+    or
 
     # Get a file and write to an open file
     myfile = open('/tmp/localcopy/server.txt', 'wb')
@@ -76,6 +76,13 @@ Examples
     # Put using string data (in python 3 contents should be bytes)
     f.put(None,  'someremote/file/greeting.txt', contents='blah blah blah')
 
+    or
+
+    # Put a tree on a remote directory (similar to shutil.copytree, without following
+    # symlinks
+
+    f.upload_tree("Local/tree", "/remote/files/server")
+
     # Return a list the files in a directory
     f.list('someremote/folder')
     ['a.txt', 'b.txt']
@@ -103,11 +110,11 @@ Examples
       'size': '4096',
       'time': '02:35',
       'year': '2014'}]
-    
+
     # Change to remote directory
     f.cd('someremote/folder')
 
-    # Delete a remote file 
+    # Delete a remote file
     f.delete('someremote/folder/file.txt')
 
     # Close the connection

@@ -113,6 +113,41 @@ class ftpretty(object):
             self.conn.cwd(current)
         return size
 
+    def upload_tree(self, src, dst,  ignore=None):
+        """Recursively upload a directory tree.
+
+        Although similar to shutil.copytree we don't follow symlinks.
+        """
+        names = os.listdir(src)
+        if ignore is not None:
+            ignored_names = ignore(src, names)
+        else:
+            ignored_names = set()
+
+        try:
+            self.conn.mkd(dst)
+        except ftplib.error_perm:
+            pass
+
+        errors = []
+        for name in names:
+            if name in ignored_names:
+                continue
+            src_name = os.path.join(src, name)
+            dst_name = os.path.join(dst, name)
+            try:
+                if os.path.islink(src_name):
+                    pass
+                elif os.path.isdir(src_name):
+                    self.upload_tree(src_name, dst_name, ignore)
+                else:
+                    # Will raise a SpecialFileError for unsupported file types
+                    self.put(src_name, dst_name)
+            except Exception as why:
+                errors.append((src_name, dst_name, str(why)))
+
+        return dst
+
     def list(self, remote='.', extra=False, remove_relative_paths=False):
         """ Return directory list """
         if extra:
