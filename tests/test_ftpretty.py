@@ -1,5 +1,6 @@
 import os
 import unittest
+import shutil
 from datetime import datetime
 from ftpretty import ftpretty
 from compat import PY2
@@ -54,6 +55,18 @@ class FtprettyTestCase(unittest.TestCase):
             put_contents = b'test_string'
         size = self.pretty.put(None, 'AUTHORS.rst', put_contents)
         self.assertEquals(size, len(put_contents))
+
+    def test_upload_tree(self):
+
+        os.mkdir("tree")
+        f = open("tree/foo.txt", "w")
+        f.write("message")
+        os.mkdir("tree/bar")
+        f = open("tree/bar/baz.txt", "w")
+        f.write("another message")
+        tree = self.pretty.upload_tree("tree", "/tree")
+        self.assertEquals(tree, "/tree")
+        shutil.rmtree("tree")
 
     def test_get(self):
         if PY2:
