@@ -1,6 +1,9 @@
 Changelog for ftpretty
 ======================
 
+0.2.4 (2016-12-14)
+   - upload_tree() added
+
 0.2.3 (2015-12-01)
 ------------------
    - rename() added

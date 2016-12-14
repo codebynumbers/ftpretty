@@ -7,3 +7,4 @@ Authors
 - Panos Katseas
 - Niklas Bivald
 - Doug Van Horn
+- Oz N Tiram
