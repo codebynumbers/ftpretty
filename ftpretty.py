@@ -15,11 +15,10 @@
 """
 from __future__ import print_function
 import datetime
-import ftplib
+from ftplib import FTP, error_perm
 import os
 import re
 
-from ftplib import FTP
 from dateutil import parser
 from compat import buffer_type, file_type
 
@@ -60,20 +59,21 @@ class ftpretty(object):
         """ Gets the file from FTP server
 
             local can be:
+                a file: opened for writing, left open
                 a string: path to output file
-                a file: opened for writing
                 None: contents are returned
         """
-        if isinstance(local, file_type):
+        if isinstance(local, file_type):  # open file, leave open
             local_file = local
-        elif local is None:
+        elif local is None:  # return string
             local_file = buffer_type()
-        else:
+        else:  # path to file, open, write/close return None
             local_file = open(local, 'wb')
+
         self.conn.retrbinary("RETR %s" % remote, local_file.write)
 
         if isinstance(local, file_type):
-            local_file = local
+            pass
         elif local is None:
             contents = local_file.getvalue()
             local_file.close()
@@ -116,7 +116,7 @@ class ftpretty(object):
             self.conn.cwd(current)
         return size
 
-    def upload_tree(self, src, dst,  ignore=None):
+    def upload_tree(self, src, dst, ignore=None):
         """Recursively upload a directory tree.
 
         Although similar to shutil.copytree we don't follow symlinks.
@@ -129,7 +129,7 @@ class ftpretty(object):
 
         try:
             self.conn.mkd(dst)
-        except ftplib.error_perm:
+        except error_perm:
             pass
 
         errors = []
