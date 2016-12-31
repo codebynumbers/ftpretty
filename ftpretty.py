@@ -14,16 +14,19 @@
 
 """
 from __future__ import print_function
+import datetime
+import ftplib
 import os
 import re
-import datetime
+
 from ftplib import FTP
+from dateutil import parser
+from compat import buffer_type, file_type
+
 try:
     from ftplib import FTP_TLS
 except ImportError:
     FTP_TLS = None
-from dateutil import parser
-from compat import buffer_type, file_type
 
 
 class ftpretty(object):
