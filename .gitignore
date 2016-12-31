@@ -9,3 +9,4 @@ MANIFEST
 ftpretty.egg-info
 coverage
 .coverage
+.eggs
