@@ -8,10 +8,10 @@ ftpretty
 .. image:: https://coveralls.io/repos/codebynumbers/ftpretty/badge.png?branch=master
    :target: https://coveralls.io/r/codebynumbers/ftpretty?branch=master
 
-.. image:: https://pypip.in/v/ftpretty/badge.png
+.. image:: https://img.shields.io/pypi/v/ftpretty.svg
    :target: https://pypi.python.org/pypi/ftpretty
 
-.. image:: https://pypip.in/d/ftpretty/badge.png
+.. image:: https://img.shields.io/pypi/dm/ftpretty.svg
    :target: https://pypi.python.org/pypi/ftpretty
 
 A wrapper for simple FTP operations: get, put, list etc.
