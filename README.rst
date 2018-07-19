@@ -2,29 +2,17 @@
 ftpretty
 ========
 
-.. image:: https://travis-ci.org/codebynumbers/ftpretty.png?branch=master
-   :target: https://travis-ci.org/codebynumbers/ftpretty
-
-.. image:: https://coveralls.io/repos/codebynumbers/ftpretty/badge.png?branch=master
-   :target: https://coveralls.io/r/codebynumbers/ftpretty?branch=master
-
-.. image:: https://img.shields.io/pypi/v/ftpretty.svg
-   :target: https://pypi.python.org/pypi/ftpretty
-
-.. image:: https://img.shields.io/pypi/dm/ftpretty.svg
-   :target: https://pypi.python.org/pypi/ftpretty
-
-A wrapper for simple FTP operations: get, put, list etc.
+A wrapper for simple FTP operations:
 
 The goal of this library is to provide a frictionless experience to FTPing files
 in way similar to Amazon's s3cmd command line tool. The API should be intuitive
 with the order of arguments reflecting the transfer direction of bytes.
 
-Transfers are assumed to be binary. 
+Transfers are assumed to be binary.
 
 Unrecognized commands fall through to the underlying FTP or FTP_TLS connection object
 
-Supports python 2.6, 2.7, 3.3
+Python3 optimized version, not on pypi quite yet...
 
 Examples
 --------
@@ -119,4 +107,3 @@ Examples
 
     # Close the connection
     f.close()
-

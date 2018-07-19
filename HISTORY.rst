@@ -1,6 +1,15 @@
 Changelog for ftpretty
 ======================
 
+0.2.7 (2018-07-19)
+   - added basic logging
+   - added blocksize to put, get
+   - added hash function
+   - added transfer class for callback
+   - cleaned up imports
+   - making tests more modular
+   - Python3 optimizations
+
 0.2.4 (2016-12-14)
    - upload_tree() added
 
