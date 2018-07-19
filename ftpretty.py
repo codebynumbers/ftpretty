@@ -1,78 +1,58 @@
-""" A simple API wrapper for FTPing files
+from datetime import datetime
+from ftplib import FTP, FTP_TLS, error_perm
+from hashlib import sha512
+from io import BytesIO, IOBase
+from logging import basicConfig, DEBUG, debug, ERROR, error, getLogger, INFO, info
+from os import listdir, path
+from re import split
+from sys import getsizeof
 
-    you should be able to this:
-
-    from ftpretty import ftpretty
-    f = ftpretty(host, user, pass, secure=False, timeout=10)
-    f.get(remote, local)
-    f.put(local, remote)
-    f.list(remote)
-    f.cd(remote)
-    f.delete(remote)
-    f.rename(remote_from, remote_to)
-    f.close()
-
-"""
-from __future__ import print_function
-import datetime
-from ftplib import FTP, error_perm
-import os
-import re
-
-from dateutil import parser
-from compat import buffer_type, file_type
-
-try:
-    from ftplib import FTP_TLS
-except ImportError:
-    FTP_TLS = None
-
+basicConfig(level=INFO)
+log = getLogger(__name__)
 
 class ftpretty(object):
-    """ A wrapper for FTP connections """
     conn = None
     tmp_output = None
     relative_paths = set(['.', '..'])
 
-    def __init__(self, host, user, password,
-            secure=False, passive=True, ftp_conn=None, **kwargs):
-
+    def __init__(self, host, user, password, ftp_conn=None, passive=True, secure=False, **kwargs):
         if ftp_conn:
             self.conn = ftp_conn
         elif secure and FTP_TLS:
             self.conn = FTP_TLS(host=host, user=user, passwd=password, **kwargs)
             self.conn.prot_p()
+            log.info('Creating Secure FTP Session: ' + user + '@' + host + ':' + ' [Credential: ' + sha512(password.encode('utf8')).hexdigest() + ']')
         else:
             self.conn = FTP(host=host, user=user, passwd=password, **kwargs)
+            log.info('Creating Insecure FTP Session: ' + user + '@' + host + ':' + ' [Credential: ' + sha512(password.encode('utf8')).hexdigest() + ']')
 
         if not passive:
             self.conn.set_pasv(False)
+            log.info('Passive Mode [DISABLED]')
 
     def __getattr__(self, name):
-        """ Pass anything we don't know about, to underlying ftp connection """
         def wrapper(*args, **kwargs):
             method = getattr(self.conn, name)
             return method(*args, **kwargs)
         return wrapper
 
     def get(self, remote, local=None):
-        """ Gets the file from FTP server
-
-            local can be:
-                a file: opened for writing, left open
-                a string: path to output file
-                None: contents are returned
-        """
-        if isinstance(local, file_type):  # open file, leave open
+        if isinstance(local, IOBase):
             local_file = local
-        elif local is None:  # return string
-            local_file = buffer_type()
-        else:  # path to file, open, write/close return None
-            local_file = open(local, 'wb')
+            log.debug('Saving download to existing open file: [' + local_file.name + '] using descriptor [' + str(local_file.fileno()) + '] in [' + local_file.mode + '] mode')
+        elif local is None:
+            local_file = BytesIO(local)
+            log.debug('Saving download to binary file stream: [' + str(local_file.getbuffer()) + ']')
+        else:
+            local_file = open(local, 'wb', buffering=0)
+            log.debug('Creating binary file buffer: [' + local_file.name + '] using file descriptor [' + str(local_file.fileno()) + '] in [' + local_file.mode + '] mode for download')
 
-        self.conn.retrbinary("RETR %s" % remote, local_file.write)
+        total_size = self.conn.size(remote)
 
-        if isinstance(local, file_type):
+        progress = transfer(local_file, int(total_size), get=True)
+        self.conn.retrbinary('RETR {0}'.format(remote), progress.handle, blocksize=8192)
+
+        if isinstance(local, IOBase):
             pass
         elif local is None:
             contents = local_file.getvalue()
@@ -84,30 +64,32 @@ class ftpretty(object):
         return None
 
     def put(self, local, remote, contents=None):
-        """ Puts a local file (or contents) on to the FTP server
-
-            local can be:
-                a string: path to inpit file
-                a file: opened for reading
-                None: contents are pushed
-        """
-        remote_dir = os.path.dirname(remote)
-        remote_file = os.path.basename(local)\
-            if remote.endswith('/') else os.path.basename(remote)
+        remote_dir = path.dirname(remote)
+        if remote.endswith('/'): 
+            remote_file = path.basename(local)
+        else: 
+            remote_file = path.basename(remote)
 
         if contents:
-            # local is ignored if contents is set
-            local_file = buffer_type(contents)
-        elif isinstance(local, file_type):
-            local_file = local
+            local_file = BytesIO(contents)
+            log.debug('Reading contents from binary stream: [' + str(local_file.getbuffer()) + '] for upload')
+            total_size = getsizeof(local_file)
         else:
-            local_file = open(local, 'rb')
+            if isinstance(local, IOBase):
+                local_file = local
+                log.debug('Reading contents from open file descriptor: [' + str(local_file.fileno()) + '] in [' + local_file.mode + '] mode for upload')
+            elif isinstance(local, str):
+                local_file = open(local, 'rb', buffering=0)
+                log.debug('Opening file: [' + local_file.name + '] using file descriptor [' + str(local_file.fileno()) + '] in [' + local_file.mode + '] mode for upload')
+            total_size = path.getsize(local_file.name)
+
         current = self.conn.pwd()
         self.descend(remote_dir, force=True)
 
         size = 0
         try:
-            self.conn.storbinary('STOR %s' % remote_file, local_file)
+            progress = transfer(remote_file, int(total_size))
+            self.conn.storbinary('STOR {0}'.format(remote_file), local_file, blocksize=8192, callback=progress.handle)
             size = self.conn.size(remote_file)
         finally:
             local_file.close()
@@ -115,11 +97,7 @@ class ftpretty(object):
         return size
 
     def upload_tree(self, src, dst, ignore=None):
-        """Recursively upload a directory tree.
-
-        Although similar to shutil.copytree we don't follow symlinks.
-        """
-        names = os.listdir(src)
+        names = listdir(src)
         if ignore is not None:
             ignored_names = ignore(src, names)
         else:
@@ -134,15 +112,14 @@ class ftpretty(object):
         for name in names:
             if name in ignored_names:
                 continue
-            src_name = os.path.join(src, name)
-            dst_name = os.path.join(dst, name)
+            src_name = path.join(src, name)
+            dst_name = path.join(dst, name)
             try:
-                if os.path.islink(src_name):
+                if path.islink(src_name):
                     pass
-                elif os.path.isdir(src_name):
+                elif path.isdir(src_name):
                     self.upload_tree(src_name, dst_name, ignore)
                 else:
-                    # Will raise a SpecialFileError for unsupported file types
                     self.put(src_name, dst_name)
             except Exception as why:
                 errors.append((src_name, dst_name, str(why)))
@@ -150,7 +127,6 @@ class ftpretty(object):
         return dst
 
     def list(self, remote='.', extra=False, remove_relative_paths=False):
-        """ Return directory list """
         if extra:
             self.tmp_output = []
             self.conn.dir(remote, self._collector)
@@ -170,7 +146,6 @@ class ftpretty(object):
             return path not in self.relative_paths
 
     def descend(self, remote, force=False):
-        """ Descend, possibly creating directories as needed """
         remote_dirs = remote.split('/')
         for directory in remote_dirs:
             try:
@@ -182,7 +157,6 @@ class ftpretty(object):
         return self.conn.pwd()
 
     def delete(self, remote):
-        """ Delete a file from server """
         try:
             self.conn.delete(remote)
         except Exception:
@@ -191,7 +165,6 @@ class ftpretty(object):
             return True
 
     def cd(self, remote):
-        """ Change working directory on server """
         try:
             self.conn.cwd(remote)
         except Exception:
@@ -200,33 +173,47 @@ class ftpretty(object):
             return self.pwd()
 
     def pwd(self):
-        """ Return the current working directory """
         return self.conn.pwd()
 
     def rename(self, remote_from, remote_to):
-        """ Rename a file on the server """
         return self.conn.rename(remote_from, remote_to)
 
     def close(self):
-        """ End the session """
         try:
             self.conn.quit()
         except Exception:
             self.conn.close()
 
     def _collector(self, line):
-        """ Helper for collecting output from dir() """
         self.tmp_output.append(line)
 
 
+def hash(filename, blocksize=65536):
+    hasher = sha512()
+    if isinstance(filename, str):
+        with open(filename, 'rb') as filestream:
+            buffer = filestream.read(blocksize)
+            while len(buffer) > 0:
+                hasher.update(buffer)
+                buffer = filestream.read(blocksize)
+    elif not isinstance(filename, BytesIO) and isinstance(filename, IOBase):
+        buffer = filename.read(blocksize)
+        while len(buffer) > 0:
+            hasher.update(buffer)
+            buffer = filename.read(blocksize)
+    elif isinstance(filename, BytesIO) and isinstance(filename, IOBase) or isinstance(filename, BytesIO) and not isinstance(filename, IOBase):
+        buffer = filename.read1(blocksize)
+        while len(buffer) > 0:
+            hasher.update(buffer)
+            buffer = filename.read1(blocksize)
+
+    return hasher.hexdigest()
+
 def split_file_info(fileinfo):
-    """ Parse sane directory output usually ls -l
-        Adapted from https://gist.github.com/tobiasoberrauch/2942716
-    """
-    current_year = datetime.datetime.now().strftime('%Y')
+    current_year = datetime.now().strftime('%Y')
     files = []
     for line in fileinfo:
-        parts = re.split(
+        parts = split(
             r'^([\-dbclps])' +                  # Directory flag [1]
             r'([\-rwxs]{9})\s+' +               # Permissions [2]
             r'(\d+)\s+' +                       # Number of items [3]
@@ -242,7 +229,7 @@ def split_file_info(fileinfo):
         date = parts[7]
         time = parts[8] if ':' in parts[8] else '00:00'
         year = parts[8] if ':' not in parts[8] else current_year
-        dt_obj = parser.parse("%s %s %s" % (date, year, time))
+        dt_obj = datetime.strptime("{1} {0} {2}".format(date, year, time), '%Y %b %d %H:%M')
 
         files.append({
             'directory': parts[1],
@@ -257,4 +244,42 @@ def split_file_info(fileinfo):
             'name': parts[9],
             'datetime': dt_obj
         })
+
     return files
+
+
+class transfer:
+    bytes_written = 0
+    total_size = 0
+    transfer_progress = 0
+
+    def __init__(self, current_file, total_size, buffer_size=8192, get=False):
+        self.buffer = buffer_size
+        self.current_file = current_file
+        self.get = get
+        self.total_size = total_size
+
+    def handle(self, block):
+        if self.get:
+            if isinstance(block, bytes):
+                self.current_file.write(block)
+            elif isinstance(block, str):
+                self.current_file.write(bytes(block.encode('utf8')))
+
+        if isinstance(self.current_file, str):
+            filename = self.current_file.split('/')[-1]
+        elif not isinstance(self.current_file, BytesIO) and isinstance(self.current_file, IOBase):
+            filename = self.current_file.name.split('/')[-1]
+        elif isinstance(self.current_file, BytesIO) and isinstance(self.current_file, IOBase) or isinstance(self.current_file, BytesIO) and not isinstance(self.current_file, IOBase):
+            filename = hash(self.current_file)
+
+        self.bytes_written += self.buffer
+
+        if (self.bytes_written / self.total_size) >= 1.0:
+            percent_complete = int(100.0)
+        else:
+            percent_complete = int(100.0 * (self.bytes_written / self.total_size))
+
+        if (self.transfer_progress != percent_complete):
+            self.transfer_progress = percent_complete
+            print("{0} @ [{1:d}%]".format(filename, percent_complete))

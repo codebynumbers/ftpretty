@@ -1,8 +1,9 @@
-import os
 from collections import deque
+from io import BytesIO, IOBase
+from os import path, remove, SEEK_END
+from sys import getsizeof
 
 class MockFTP(object):
-    """ Mock FTP lib for testing """
 
     def __init__(self):
         self._files = None
@@ -12,11 +13,20 @@ class MockFTP(object):
         self._stack = deque()
         self._contents = ''
 
-    def storbinary(self, command, f):
-        f.seek(0, os.SEEK_END)
-        self._size = f.tell()
+    def storbinary(self, command, f, blocksize=8192, callback=None):
+        if isinstance(f, str):
+            with open(command.split(' ')[-1], 'w') as file:
+                file.write(f)
+        elif not isinstance(f, BytesIO) and isinstance(f, IOBase):
+            with open(command.split(' ')[-1], 'wb') as file:
+                file.write(f.read())
+        elif isinstance(f, BytesIO) and isinstance(f, IOBase) or isinstance(f, BytesIO) and not isinstance(f, IOBase):
+            with open(command.split(' ')[-1], 'wb') as file:
+                file.write(f.getvalue())
 
-    def retrbinary(self, command, callback):
+        self._size = self.size(f)
+
+    def retrbinary(self, command, callback, blocksize=8192):
         callback(self._contents)
         return
 
@@ -41,6 +51,7 @@ class MockFTP(object):
     def delete(self, filename):
         if not self._exists:
             raise Exception("Doesn't exist")
+        remove(filename)
         return True
 
     def rename(self, fromname, toname):
@@ -57,6 +68,12 @@ class MockFTP(object):
                 self._stack.append(dir)
 
     def size(self, filename):
+        if isinstance(filename, str):
+            self._size = path.getsize(filename)
+        elif isinstance(filename, BytesIO) and isinstance(filename, IOBase) or isinstance(filename, BytesIO) and not isinstance(filename, IOBase):
+            self._size = getsizeof(filename.getvalue())
+        elif not isinstance(filename, BytesIO) and isinstance(filename, IOBase):
+            self._size = path.getsize(filename.name)
         return self._size
 
     def dir(self, dirname, callback):
@@ -70,7 +87,7 @@ class MockFTP(object):
         return passive
 
     def quit(self):
-        raise Exception('Fake a a problem with quit')
+        raise Exception('Fake a problem with quit')
 
     def close(self):
         return True
