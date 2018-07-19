@@ -8,3 +8,4 @@ Authors
 - Niklas Bivald
 - Doug Van Horn
 - Oz N Tiram
+- Antonio Jordan
