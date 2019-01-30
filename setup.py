@@ -1,5 +1,3 @@
-#!/usr/bin/env python3.6
-
 from os import path
 from setuptools import setup
 
@@ -27,6 +25,9 @@ setup(
         "License :: OSI Approved :: BSD License",
         "Operating System :: OS Independent",
         "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.3",
+        "Programming Language :: Python :: 3.4",
+        "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         "Intended Audience :: Developers",
         "Intended Audience :: System Administrators",
