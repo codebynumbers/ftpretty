@@ -1,8 +1,21 @@
 Changelog for ftpretty
 ======================
+0.2.8 (2019-01-30)
+   - added ftpool class
+   - added get_t and put_t
+   - added ftp_thread class
+
+0.2.7 (2018-07-19)
+   - added basic logging
+   - added blocksize to put, get
+   - added hash function
+   - added transfer class for callback
+   - cleaned up imports
+   - making tests more modular
+   - Python3 optimizations
 
 0.2.4 (2016-12-14)
-   - upload_tree() added
+   - put_r() added
 
 0.2.3 (2015-12-01)
 ------------------
