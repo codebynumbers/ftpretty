@@ -4,6 +4,7 @@ try:
 except ImportError as err:
     from hashlib import sha512 as hashbrown
 from io import BytesIO, IOBase
+from re import split
 
 def hash(filename, algorithm=None, blocksize=65536):
     if not algorithm:
