@@ -39,7 +39,7 @@ class FtprettyTestCase(TestCase):
         self.assertEqual(len(self.pretty.list(remove_relative_paths=True)), 1)
 
     def test_put_contents(self):
-        put_contents = token_bytes(128)
+        put_contents = open("/dev/urandom","rb").read(256)
         size = self.pretty.put(None, 'foobar.txt', put_contents)
         self.assertEqual(size, len(BytesIO(put_contents).getvalue()))
 
@@ -54,7 +54,7 @@ class FtprettyTestCase(TestCase):
         remove('foobar.txt')
 
     def test_put_r(self):
-        contents = token_bytes(128)
+        contents = open("/dev/urandom","rb").read(256)
         mkdir('tree')
         mkdir('tree/bar')
         with open('tree/foo.txt', 'wb') as file:
@@ -69,7 +69,7 @@ class FtprettyTestCase(TestCase):
         rmdir('tree')
 
     def test_get_contents(self):
-        get_contents = token_bytes(128)
+        get_contents = open("/dev/urandom","rb").read(256)
         if path.exists('remote_file.txt'):
             remove('remote_file.txt')
         with open('remote_file.txt', 'wb') as file:
@@ -80,7 +80,7 @@ class FtprettyTestCase(TestCase):
         remove('remote_file.txt')
 
     def test_get(self):
-        get_contents = token_bytes(128)
+        get_contents = open("/dev/urandom","rb").read(256)
         self.mock_ftp._set_contents(get_contents)
         if path.exists('local_copy.txt'):
             remove('local_copy.txt')
@@ -98,7 +98,7 @@ class FtprettyTestCase(TestCase):
         remove('remote_file.txt')
 
     def test_get_filehandle(self):
-        get_contents = token_bytes(128)
+        get_contents = open("/dev/urandom","rb").read(256)
         self.mock_ftp._set_contents(get_contents)
         if path.exists('local_copy.txt'):
             remove('local_copy.txt')
@@ -117,7 +117,7 @@ class FtprettyTestCase(TestCase):
         remove('remote_file.txt')
 
     def test_delete(self):
-        delete_contents = token_bytes(128)
+        delete_contents = open("/dev/urandom","rb").read(256)
         if path.exists('delete_file.txt'):
             remove('delete_file.txt')
         with open('delete_file.txt', 'wb') as file:
