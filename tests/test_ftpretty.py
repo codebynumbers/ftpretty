@@ -3,7 +3,6 @@ from ftpretty import ftpretty
 from io import BytesIO
 from .mock_ftp import MockFTP
 from os import mkdir, path, remove, rmdir
-from secrets import token_bytes
 from unittest import TestCase, TestLoader, TestSuite, TextTestRunner
 
 class FtprettyTestCase(TestCase):
