@@ -109,6 +109,8 @@ class ftpretty(object):
         try:
             self.conn.storbinary('STOR %s' % remote_file, local_file)
             size = self.conn.size(remote_file)
+        except:
+            pass
         finally:
             local_file.close()
             self.conn.cwd(current)
