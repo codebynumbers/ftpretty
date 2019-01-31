@@ -2,7 +2,7 @@
 from setuptools import setup
 import os
 
-__version__ = '0.2.6'
+__version__ = '0.2.7'
 
 
 def read(*paths):
