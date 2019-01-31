@@ -14,12 +14,23 @@ def read(*paths):
 setup(
     name='ftpretty',
     version=__version__,
+
+    packages=['ftpretty',],
+
+    author='bornwitbugs',
+    author_email='40208858+bornwitbugs@users.noreply.github.com',
     description='Pretty FTP Wrapper',
+    download_url='https://github.com/bornwitbugs/ftpretty/tarball/{0}'.format(__version__),
+    license='BSD',
     long_description=(
         read('README.rst') + '\n\n' +
         read('HISTORY.rst') + '\n\n' +
         read('AUTHORS.rst')
     ),
+    keywords='ftp ftps file transfer protocal',
+    platforms=['any'],
+    test_suite = 'tests.test_ftpretty.suite',
+    url='https://github.com/bornwitbugs/ftpretty/',
     classifiers=[
         "Topic :: Internet :: File Transfer Protocol (FTP)",
         "Topic :: Utilities",
@@ -34,11 +45,4 @@ setup(
         "Intended Audience :: Developers",
         "Intended Audience :: System Administrators",
     ],
-    license='BSD',
-    author='bornwitbugs',
-    author_email='40208858+bornwitbugs@users.noreply.github.com',
-    url='https://github.com/bornwitbugs/ftpretty/',
-    download_url='https://github.com/bornwitbugs/ftpretty/tarball/{0}'.format(__version__),
-    py_modules=['ftpretty'],
-    test_suite = 'tests.test_ftpretty.suite',
 )
