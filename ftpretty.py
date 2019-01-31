@@ -83,7 +83,7 @@ class ftpretty(object):
 
         return None
 
-    def put(self, local, remote, contents=None):
+    def put(self, local, remote, contents=None, quiet=False):
         """ Puts a local file (or contents) on to the FTP server
 
             local can be:
@@ -110,7 +110,8 @@ class ftpretty(object):
             self.conn.storbinary('STOR %s' % remote_file, local_file)
             size = self.conn.size(remote_file)
         except:
-            pass
+            if not quiet:
+                raise
         finally:
             local_file.close()
             self.conn.cwd(current)
