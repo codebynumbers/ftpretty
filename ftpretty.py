@@ -231,7 +231,7 @@ def split_file_info(fileinfo):
     for line in fileinfo:
         parts = re.split(
             r'^([\-dbclps])' +                  # Directory flag [1]
-            r'([\-rwxs]{9})\s+' +               # Permissions [2]
+            r'([\-rwxs]{9}t?)\s+' +             # Permissions [2]
             r'(\d+)\s+' +                       # Number of items [3]
             r'([a-zA-Z0-9_-]+)\s+' +            # File owner [4]
             r'([a-zA-Z0-9_-]+)\s+' +            # File group [5]
