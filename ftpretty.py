@@ -129,6 +129,7 @@ class ftpretty(object):
             ignored_names = set()
 
         try:
+            dst = dst.replace('\\', '/')
             self.conn.mkd(dst)
         except error_perm:
             pass
