@@ -148,7 +148,7 @@ class FtprettyTestCase(unittest.TestCase):
         self.mock_ftp._set_dirlist("-rw-rw-r-- 1 rharrigan read-only   47 Feb 20 11:39 Cool.txt\n" +
                                    "-rw-rw-r-- 1 rharrigan nobody 2085 Feb 21 13:27 multi word name.png\n" +
                                    "-rw-rw-r-- 1 rharrigan dodgy-group-name  195 Feb 20 2013 README.txt\n"
-                                   "drwxr-xr-xt 2 rharrigan rharrigan 4096 Jan 31  2019 dist\n")
+                                   "drwxr-xr-t 2 rharrigan rharrigan 4096 Jan 31  2019 dist\n")
         files = self.pretty.list(extra=True)
         self.assertEquals(len(files), 4)
 
