@@ -1,6 +1,9 @@
 Changelog for ftpretty
 ======================
 
+0.3.0 (2019-10-21)
+   - permissions parsing fix, upload tree fix
+
 0.2.4 (2016-12-14)
    - upload_tree() added
 
