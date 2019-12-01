@@ -1,6 +1,9 @@
 Changelog for ftpretty
 ======================
 
+0.3.1 (2019-12-01)
+   - accept port argument
+
 0.3.0 (2019-10-21)
    - permissions parsing fix, upload tree fix
 
