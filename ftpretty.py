@@ -38,7 +38,7 @@ class ftpretty(object):
     def __init__(self, host, user, password,
             secure=False, passive=True, ftp_conn=None, **kwargs):
 
-        if 'port' in kwargs.keys():
+        if 'port' in kwargs:
             self.port = kwargs['port']
             del kwargs['port']
 
