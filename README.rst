@@ -40,7 +40,9 @@ Examples
     # kwargs are passed to underlying FTP or FTP_TLS connection
     # secure=True argument switches to an FTP_TLS connection default is False
     # passive=False disable passive connection, True is the default
-    f = ftpretty(host, user, pass, secure=True, passive=False, timeout=10)
+    # Note: port is not supported as an argument in underlying FTP or FTP_TLS but support for
+    # handling port has been internally added in ftpretty by setting FTP.port or FTP_TLS.port
+    f = ftpretty(host, user, pass, secure=True, passive=False, timeout=10, port=2121)
 
     # Get a file, save it locally
     f.get('someremote/file/on/server.txt', '/tmp/localcopy/server.txt')

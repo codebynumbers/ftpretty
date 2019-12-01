@@ -31,18 +31,27 @@ except ImportError:
 class ftpretty(object):
     """ A wrapper for FTP connections """
     conn = None
+    port = None
     tmp_output = None
     relative_paths = set(['.', '..'])
 
     def __init__(self, host, user, password,
             secure=False, passive=True, ftp_conn=None, **kwargs):
 
+        if 'port' in kwargs.keys():
+            self.port = kwargs['port']
+            del kwargs['port']
+
         if ftp_conn:
             self.conn = ftp_conn
         elif secure and FTP_TLS:
+            if self.port:
+                FTP_TLS.port = self.port
             self.conn = FTP_TLS(host=host, user=user, passwd=password, **kwargs)
             self.conn.prot_p()
         else:
+            if self.port:
+                FTP.port = self.port
             self.conn = FTP(host=host, user=user, passwd=password, **kwargs)
 
         if not passive:
