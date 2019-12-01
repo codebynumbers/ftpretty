@@ -169,6 +169,9 @@ class FtprettyTestCase(unittest.TestCase):
     def test_set_pasv(self):
         ftpretty(None, None, None, ftp_conn=self.mock_ftp, passive=False)
 
+    def test_custom_port(self):
+        ftpretty(None, None, None, ftp_conn=self.mock_ftp, port=2121)
+
     def test_close(self):
         self.pretty.close()
 
