@@ -1,6 +1,9 @@
 Changelog for ftpretty
 ======================
 
+0.3.3 (2020-07-27)
+   - parse alternal directory listing format
+
 0.3.1 (2019-12-01)
    - accept port argument
 
