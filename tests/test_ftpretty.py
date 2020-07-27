@@ -126,6 +126,22 @@ class FtprettyTestCase(unittest.TestCase):
         self.assertEquals(files[2]['owner'], 'rharrigan')
         self.assertEquals(files[2]['group'], 'wheel')
 
+    def test_dir_parse_windows(self):
+        self.mock_ftp._set_dirlist(
+            "01-02-20  01:39PM             25429393 ABC.csv\n"
+            "01-03-20  01:34PM             25450295 def-ghi.csv\n" +
+            "01-06-20  02:28PM             25504938 data.csv\n"
+        )
+
+        files = self.pretty.list(extra=True)
+        self.assertEquals(len(files), 3)
+
+        self.assertEquals(files[2]['datetime'], datetime(2020, 1, 6, 14, 28, 0))
+        self.assertEquals(files[2]['size'], 25504938)
+        self.assertEquals(files[2]['name'], 'data.csv')
+        self.assertEquals(files[2]['owner'], None)
+        self.assertEquals(files[2]['group'], None)
+
     def test_dir_parse_patched_regex(self):
         self.mock_ftp._set_dirlist("-rw-rw-r-- 1 rharrigan read-only   47 Feb 20 11:39 Cool.txt\n" +
                        "-rw-rw-r-- 1 rharrigan nobody 2085 Feb 21 13:27 multi word name.png\n" +
