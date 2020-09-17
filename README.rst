@@ -29,7 +29,7 @@ Supports python 2 & 3, tested on 2.7 & 3.5, 3.6, & 3.7
 Examples
 --------
 
-::
+.. code-block:: python
 
     from ftpretty import ftpretty
 
