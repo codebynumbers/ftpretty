@@ -221,10 +221,7 @@ class ftpretty(object):
         return self.conn.rename(remote_from, remote_to)
 
     def mkdir(self, new_dir: str):
-        """ 
-            Create directory on the server 
-            - Return the path 
-        """
+        """ Create directory on the server """
         return self.conn.mkd(new_dir)
 
     def close(self):

@@ -24,6 +24,12 @@ class FtprettyTestCase(unittest.TestCase):
         self.pretty.cd('../..')
         self.assertEquals(self.pretty.pwd(), 'photos')
 
+    def test_make_directory(self):
+        self.pretty.cd('photos')
+        self.pretty.mkdir('family')
+        self.pretty.cd('family')
+        self.assertEqual(self.pretty.pwd(), 'photos/family')
+
     def test_descend(self):
         self.pretty._set_exists(False)
         self.pretty.descend('photos/nature', True)
