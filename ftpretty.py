@@ -220,7 +220,7 @@ class ftpretty(object):
         """ Rename a file on the server """
         return self.conn.rename(remote_from, remote_to)
 
-    def mkdir(self, new_dir: str):
+    def mkdir(self, new_dir):
         """ Create directory on the server """
         return self.conn.mkd(new_dir)
 
