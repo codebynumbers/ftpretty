@@ -116,6 +116,9 @@ Examples
     # Change to remote directory
     f.cd('someremote/folder')
 
+    # Create directory
+    f.mkdir('new_folder')
+
     # Delete a remote file
     f.delete('someremote/folder/file.txt')
 

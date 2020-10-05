@@ -10,3 +10,5 @@ ftpretty.egg-info
 coverage
 .coverage
 .eggs
+Pipfile
+Pipfile.lock
