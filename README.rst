@@ -47,13 +47,9 @@ Examples
     # Get a file, save it locally
     f.get('someremote/file/on/server.txt', '/tmp/localcopy/server.txt')
 
-    or
-
     # Get a file and write to an open file
     myfile = open('/tmp/localcopy/server.txt', 'wb')
     f.get('someremote/file/on/server.txt', myfile)
-
-    or
 
     # Get a file and return contents (in python 3 contents is bytes)
     contents = f.get('someremote/file/on/server.txt')
@@ -62,27 +58,18 @@ Examples
     # non-existent subdirectories will be created automatically
     f.put('/tmp/localcopy/data.txt', 'someremote/file/on/server.txt')
 
-    or
-
     # Put a local file into a remote directory, denoted by trailing slash on remote
     f.put('/tmp/localcopy/data.txt', 'someremote/dir/')
-
-    or
 
     # Put using an open file desciptor
     myfile = open('/tmp/localcopy/data.txt', 'r')
     f.put(myfile,  'someremote/file/on/server.txt')
 
-    or
-
     # Put using string data (in python 3 contents should be bytes)
     f.put(None,  'someremote/file/greeting.txt', contents='blah blah blah')
 
-    or
-
     # Put a tree on a remote directory (similar to shutil.copytree, without following
     # symlinks
-
     f.upload_tree("Local/tree", "/remote/files/server")
 
     # Return a list the files in a directory
