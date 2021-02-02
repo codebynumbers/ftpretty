@@ -1,11 +1,13 @@
 import os
 import unittest
+from libfaketime import fake_time, reexec_if_needed
 import shutil
 from datetime import datetime
 from ftpretty import ftpretty
 from compat import PY2
 from .mock_ftp import MockFTP
 
+reexec_if_needed()
 
 class FtprettyTestCase(unittest.TestCase):
 
@@ -119,10 +121,11 @@ class FtprettyTestCase(unittest.TestCase):
         self.mock_ftp._set_dirlist("-rw-rw-r-- 1 rharrigan www   47 Feb 20 11:39 Cool.txt\n" +
                        "-rw-rw-r-- 1 rharrigan nobody 2085 Feb 21 13:27 multi word name.png\n" +
                        "-rw-rw-r-- 1 rharrigan wheel  195 Feb 20 2013 README.txt\n")
-        files = self.pretty.list(extra=True)
-        self.assertEqual(len(files), 3)
+        with fake_time('2021-02-22 12:01:01'):
+            files = self.pretty.list(extra=True)
+            self.assertEqual(len(files), 3)
 
-        current_year = int(datetime.now().strftime('%Y'))
+            current_year = int(datetime.now().strftime('%Y'))
         self.assertEqual(files[1]['name'], 'multi word name.png')
         self.assertEqual(files[1]['datetime'], datetime(current_year, 2, 21, 13, 27, 0))
 
@@ -152,10 +155,11 @@ class FtprettyTestCase(unittest.TestCase):
         self.mock_ftp._set_dirlist("-rw-rw-r-- 1 rharrigan read-only   47 Feb 20 11:39 Cool.txt\n" +
                        "-rw-rw-r-- 1 rharrigan nobody 2085 Feb 21 13:27 multi word name.png\n" +
                        "-rw-rw-r-- 1 rharrigan dodgy-group-name  195 Feb 20 2013 README.txt\n")
-        files = self.pretty.list(extra=True)
-        self.assertEqual(len(files), 3)
+        with fake_time('2021-02-22 12:01:01'):
+            files = self.pretty.list(extra=True)
+            self.assertEqual(len(files), 3)
 
-        current_year = int(datetime.now().strftime('%Y'))
+            current_year = int(datetime.now().strftime('%Y'))
         self.assertEqual(files[0]['group'], 'read-only')
         self.assertEqual(files[1]['name'], 'multi word name.png')
         self.assertEqual(files[1]['datetime'], datetime(current_year, 2, 21, 13, 27, 0))
@@ -171,10 +175,11 @@ class FtprettyTestCase(unittest.TestCase):
                                    "-rw-rw-r-- 1 rharrigan nobody 2085 Feb 21 13:27 multi word name.png\n" +
                                    "-rw-rw-r-- 1 rharrigan dodgy-group-name  195 Feb 20 2013 README.txt\n"
                                    "drwxr-xr-t 2 rharrigan rharrigan 4096 Jan 31  2019 dist\n")
-        files = self.pretty.list(extra=True)
-        self.assertEqual(len(files), 4)
-
-        current_year = int(datetime.now().strftime('%Y'))
+        with fake_time('2021-02-22 12:01:01'):
+            files = self.pretty.list(extra=True)
+            self.assertEqual(len(files), 4)
+    
+            current_year = int(datetime.now().strftime('%Y'))
         self.assertEqual(files[0]['group'], 'read-only')
         self.assertEqual(files[1]['name'], 'multi word name.png')
         self.assertEqual(files[1]['datetime'], datetime(current_year, 2, 21, 13, 27, 0))

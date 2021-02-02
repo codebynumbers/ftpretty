@@ -236,11 +236,22 @@ class ftpretty(object):
         self.tmp_output.append(line)
 
 
+def _get_year(date):
+    from dateutil.relativedelta import relativedelta
+
+    current_date = datetime.datetime.now()
+    parsed_date = parser.parse("%s" % date)
+    if current_date > parsed_date:
+        current = current_date
+    else:
+        current = current_date - relativedelta(years=1)
+    return current.strftime('%Y')
+
+   
 def split_file_info(fileinfo):
     """ Parse sane directory output usually ls -l
         Adapted from https://gist.github.com/tobiasoberrauch/2942716
     """
-    current_year = datetime.datetime.now().strftime('%Y')
     files = []
 
     unix_format = re.compile(
@@ -271,7 +282,7 @@ def split_file_info(fileinfo):
 
             date = parts[7]
             time = parts[8] if ':' in parts[8] else '00:00'
-            year = parts[8] if ':' not in parts[8] else current_year
+            year = parts[8] if ':' not in parts[8] else _get_year(date)
             dt_obj = parser.parse("%s %s %s" % (date, year, time))
 
             files.append({
