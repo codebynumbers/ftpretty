@@ -135,6 +135,23 @@ class FtprettyTestCase(unittest.TestCase):
         self.assertEqual(files[2]['owner'], 'rharrigan')
         self.assertEqual(files[2]['group'], 'wheel')
 
+    def test_dir_parse_with_past_year(self):
+        self.mock_ftp._set_dirlist("-rw-rw-r-- 1 rharrigan www   47 Feb 20 11:39 Cool.txt\n" +
+                       "-rw-rw-r-- 1 rharrigan nobody 2085 Dec 21 13:27 multi word name.png\n" +
+                       "-rw-rw-r-- 1 rharrigan wheel  195 Feb 20 2013 README.txt\n")
+        
+        with fake_time('2021-02-22 12:01:01'):
+            files = self.pretty.list(extra=True)
+        self.assertEqual(len(files), 3)
+        self.assertEqual(files[1]['name'], 'multi word name.png')
+        self.assertEqual(files[1]['datetime'], datetime(2020, 12, 21, 13, 27, 0))
+
+        self.assertEqual(files[2]['datetime'], datetime(2013, 2, 20, 0, 0, 0))
+        self.assertEqual(files[2]['size'], 195)
+        self.assertEqual(files[2]['name'], 'README.txt')
+        self.assertEqual(files[2]['owner'], 'rharrigan')
+        self.assertEqual(files[2]['group'], 'wheel')
+
     def test_dir_parse_windows(self):
         self.mock_ftp._set_dirlist(
             "01-02-20  01:39PM             25429393 ABC.csv\n"
@@ -178,7 +195,7 @@ class FtprettyTestCase(unittest.TestCase):
         with fake_time('2021-02-22 12:01:01'):
             files = self.pretty.list(extra=True)
             self.assertEqual(len(files), 4)
-    
+
             current_year = int(datetime.now().strftime('%Y'))
         self.assertEqual(files[0]['group'], 'read-only')
         self.assertEqual(files[1]['name'], 'multi word name.png')
