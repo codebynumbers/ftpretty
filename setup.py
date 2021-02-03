@@ -45,5 +45,8 @@ setup(
     install_requires = [
         'python-dateutil',
     ],
+    tests_require = [
+        'libfaketime'
+    ],
     test_suite = 'tests.test_ftpretty.suite',
 )
