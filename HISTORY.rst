@@ -1,6 +1,9 @@
 Changelog for ftpretty
 ======================
 
+0.3.5 (2021-02-03)
+   - bugfixes for directory listing time parsing
+
 0.3.4 (2020-10-01)
    - mkdir() added
 
