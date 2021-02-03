@@ -304,6 +304,7 @@ def split_file_info(fileinfo):
 
             hour = int(parts[4])
             hour += 12 if parts[6] == 'P' else 0
+            hour = 0 if hour == 24 else hour
             year = int(parts[3]) + 2000
             dt_obj = datetime.datetime(year, int(parts[1]), int(parts[2]), hour, int(parts[5]), 0)
 
