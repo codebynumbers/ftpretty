@@ -54,6 +54,9 @@ Examples
     # Get a file and return contents (in python 3 contents is bytes)
     contents = f.get('someremote/file/on/server.txt')
 
+    # Get a tree on a remote directory (similar to shutil.copytree, without following symlinks
+    f.get_tree("/remote/tree/on/server", "/tmp/local/tree")
+
     # Put a local file to a remote location
     # non-existent subdirectories will be created automatically
     f.put('/tmp/localcopy/data.txt', 'someremote/file/on/server.txt')
@@ -68,9 +71,8 @@ Examples
     # Put using string data (in python 3 contents should be bytes)
     f.put(None,  'someremote/file/greeting.txt', contents='blah blah blah')
 
-    # Put a tree on a remote directory (similar to shutil.copytree, without following
-    # symlinks
-    f.upload_tree("Local/tree", "/remote/files/server")
+    # Put a tree on a remote directory (similar to shutil.copytree, without following symlinks
+    f.put_tree("Local/tree", "/remote/files/server")
 
     # Return a list the files in a directory
     f.list('someremote/folder')

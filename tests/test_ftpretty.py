@@ -65,7 +65,6 @@ class FtprettyTestCase(unittest.TestCase):
         self.assertEqual(size, len(put_contents))
 
     def test_upload_tree(self):
-
         os.mkdir("tree")
         f = open("tree/foo.txt", "w")
         f.write("message")
@@ -89,6 +88,21 @@ class FtprettyTestCase(unittest.TestCase):
         with open('local_copy.txt') as file:
             self.assertEqual(file.read(), 'hello_get')
         os.unlink('local_copy.txt')
+
+    def test_put_tree(self):
+        os.mkdir("tree")
+        f = open("tree/foo.txt", "w")
+        f.write("message")
+        os.mkdir("tree/bar")
+        f = open("tree/bar/baz.txt", "w")
+        f.write("another message")
+        tree = self.pretty.put_tree("tree", "/tree")
+        self.assertEqual(tree, "/tree")
+        shutil.rmtree("tree")
+
+    def test_get_tree(self):
+        """ TODO - need a mock filesystem or better mock ftp server to test this reliably """
+        pass
 
     def test_get_filehandle(self):
         self.mock_ftp._set_contents('hello_file')

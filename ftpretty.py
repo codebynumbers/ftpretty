@@ -18,7 +18,6 @@ import datetime
 from ftplib import FTP, error_perm
 import os
 import re
-
 from dateutil import parser
 from compat import buffer_type, file_type
 
@@ -27,6 +26,12 @@ try:
 except ImportError:
     FTP_TLS = None
 
+
+class dotdict(dict):
+    """dot.notation access to dictionary attributes"""
+    __getattr__ = dict.get
+    __setattr__ = dict.__setitem__
+    __delattr__ = dict.__delitem__
 
 class ftpretty(object):
     """ A wrapper for FTP connections """
@@ -162,6 +167,27 @@ class ftpretty(object):
 
         return dst
 
+    def put_tree(self, *args, **kwargs):
+        """Alias for upload_tree """
+        return self.upload_tree(*args, **kwargs)        
+
+    def get_tree(self, remote, local):
+        """Recursively download a directory tree.
+        """
+        remote = remote.replace('\\', '/')
+        for entry in self.list(remote, extra=True):
+            name = entry['name']
+            remote_path = os.path.join(remote, name)
+            local_path = os.path.join(local, name)
+            if entry.flags == 'd':
+                if not os.path.exists(local_path):
+                    os.mkdir(local_path)
+                self.get_tree(remote_path, local_path)
+            elif entry.flags == '-':
+                self.get(remote_path, local_path)
+            else:
+                pass
+
     def list(self, remote='.', extra=False, remove_relative_paths=False):
         """ Return directory list """
         if extra:
@@ -285,8 +311,9 @@ def split_file_info(fileinfo):
             year = parts[8] if ':' not in parts[8] else _get_year(date)
             dt_obj = parser.parse("%s %s %s" % (date, year, time))
 
-            files.append({
+            files.append(dotdict({
                 'directory': parts[1],
+                'flags': parts[1],
                 'perms': parts[2],
                 'items': parts[3],
                 'owner': parts[4],
@@ -297,7 +324,7 @@ def split_file_info(fileinfo):
                 'year': year,
                 'name': parts[9],
                 'datetime': dt_obj
-            })
+            }))
 
         elif windows_format.match(line):
             parts = windows_format.split(line)
@@ -308,8 +335,9 @@ def split_file_info(fileinfo):
             year = int(parts[3]) + 2000
             dt_obj = datetime.datetime(year, int(parts[1]), int(parts[2]), hour, int(parts[5]), 0)
 
-            files.append({
+            files.append(dotdict({
                 'directory': None,
+                'flags': None,
                 'perms': None,
                 'items': None,
                 'owner': None,
@@ -320,6 +348,6 @@ def split_file_info(fileinfo):
                 'year': year,
                 'name': parts[8],
                 'datetime': dt_obj
-            })
+            }))
 
     return files

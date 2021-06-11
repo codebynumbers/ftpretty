@@ -1,5 +1,6 @@
 env
 env3
+venv
 *.pyc
 *.egg
 __pycache__
