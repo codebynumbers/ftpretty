@@ -136,7 +136,7 @@ class ftpretty(object):
         return size
 
     def upload_tree(self, src, dst, ignore=None):
-        """Recursively upload a directory tree.
+        """ Recursively upload a directory tree.
 
         Although similar to shutil.copytree we don't follow symlinks.
         """
@@ -172,11 +172,11 @@ class ftpretty(object):
         return dst
 
     def put_tree(self, *args, **kwargs):
-        """Alias for upload_tree """
+        """ Alias for upload_tree """
         return self.upload_tree(*args, **kwargs)        
 
     def get_tree(self, remote, local):
-        """Recursively download a directory tree.
+        """ Recursively download a directory tree.
         """
         remote = remote.replace('\\', '/')
         for entry in self.list(remote, extra=True):
@@ -228,8 +228,8 @@ class ftpretty(object):
         """ Delete a file from server """
         try:
             self.conn.delete(remote)
-        except Exception:
-            return False
+        except Exception as exc:
+            self.conn.rmd(remote)
         else:
             return True
 
