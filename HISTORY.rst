@@ -1,6 +1,10 @@
 Changelog for ftpretty
 ======================
 
+0.4.0 (2021-06-12)
+   - added get_tree command
+   - rewrote MockFTP for test to use in-memory filesystem
+
 0.3.5 (2021-02-03)
    - bugfixes for directory listing time parsing
 
