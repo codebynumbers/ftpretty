@@ -229,7 +229,10 @@ class ftpretty(object):
         try:
             self.conn.delete(remote)
         except Exception as exc:
-            self.conn.rmd(remote)
+            try:
+                self.conn.rmd(remote)
+            except:
+                return False
         else:
             return True
 

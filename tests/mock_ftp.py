@@ -10,7 +10,7 @@ class MockFTP(object):
         self._stack = []
 
     def _getpath(self, path):
-        path = (path)
+        path = stringtype(path)
         return os.path.join(self.pwd(), path)
 
     def storbinary(self, command, f):
@@ -65,7 +65,7 @@ class MockFTP(object):
         for dir in pathname.split("/"):
             if dir == '..' and self._stack:
                 self._stack.pop()
-            elif dir not in self.mfs.listdir((self.pwd())):
+            elif dir not in self.mfs.listdir(stringtype(self.pwd())):
                 raise Exception("{} doesn't exist".format(dir))
             else:
                 self._stack.append(dir)
