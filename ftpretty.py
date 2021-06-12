@@ -116,8 +116,9 @@ class ftpretty(object):
             local_file = local
         else:
             local_file = open(local, 'rb')
-        current = self.conn.pwd()
-        self.descend(remote_dir, force=True)
+
+        if remote_dir:
+            self.descend(remote_dir, force=True)
 
         size = 0
         try:
@@ -128,7 +129,10 @@ class ftpretty(object):
                 raise
         finally:
             local_file.close()
-            self.conn.cwd(current)
+            if remote_dir:
+                depth = len(remote_dir.split('/'))
+                back = "/".join(['..' for d in range(depth)])
+                self.conn.cwd(back)
         return size
 
     def upload_tree(self, src, dst, ignore=None):

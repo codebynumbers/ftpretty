@@ -1,66 +1,91 @@
 import os
-from collections import deque
+from fs.memoryfs import MemoryFS
+from compat import stringtype
 
 class MockFTP(object):
     """ Mock FTP lib for testing """
 
     def __init__(self):
-        self._files = None
-        self._size = 0
-        self._dirlist = None
-        self._exists = True
-        self._stack = deque()
-        self._contents = ''
+        self.mfs = MemoryFS()
+        self._stack = []
+
+    def _getpath(self, path):
+        path = (path)
+        return os.path.join(self.pwd(), path)
 
     def storbinary(self, command, f):
-        f.seek(0, os.SEEK_END)
-        self._size = f.tell()
+        cmd, path = command.split(' ')
+        path = self._getpath(path)
+        with self.mfs.openbin(path, 'w') as fh:
+            fh.write(f.read())
+        return self.mfs.getinfo(path, namespaces='details').size
 
     def retrbinary(self, command, callback):
-        callback(self._contents)
+        cmd, path = command.split(' ')
+        path = self._getpath(path)
+        with self.mfs.openbin(path) as fh:
+            callback(fh.read())
         return
 
     def pwd(self):
         return "/".join(self._stack)
 
     def nlst(self, dirname=None):
-        return self._files
+        dirname = dirname or '.'
+        dirname = self._getpath(dirname)
+        return self.mfs.listdir(dirname)
 
     def quit(self):
-        return
+        self.mfs.close()
 
     def close(self):
-        return
+        self.mfs.close()
 
     def mkd(self, dirname):
-        return
+        if dirname:
+            dirname = self._getpath(dirname)
+            self.mfs.makedir(dirname)
 
     def rmd(self, dirname):
-        return
+        dirname = self._getpath(dirname)
+        self.mfs.makedir(dirname)
 
     def delete(self, filename):
-        if not self._exists:
-            raise Exception("Doesn't exist")
-        return True
+        filename = self._getpath(filename)
+        self.mfs.remove(filename)
 
     def rename(self, fromname, toname):
-        return
+        fromname = self._getpath(fromname)
+        toname = self._getpath(toname)
+        self.mfs.move(fromname, toname)
 
     def cwd(self, pathname):
-        if not self._exists:
-            self._exists = True
-            raise Exception("Doesn't exist")
+        if not pathname:
+            return
         for dir in pathname.split("/"):
-            if dir == '..':
+            if dir == '..' and self._stack:
                 self._stack.pop()
+            elif dir not in self.mfs.listdir((self.pwd())):
+                raise Exception("{} doesn't exist".format(dir))
             else:
                 self._stack.append(dir)
 
     def size(self, filename):
-        return self._size
+        filename = self._getpath(filename)
+        return self.mfs.getinfo(filename, namespaces='details').size
 
     def dir(self, dirname, callback):
-        for line in self._dirlist.splitlines():
+        dirname = self._getpath(dirname)
+        for file in self.mfs.scandir(dirname, namespaces=['details', 'access']):
+            line = '{flag}{permissions} 1 {user} {group} {size} {modified} {name}'.format(
+                flag='d' if file.is_dir else '-',
+                size=file.size,
+                name=file.name,
+                modified=file.modified.strftime("%b %-d %H:%M"),
+                user='fake_user',
+                group='fake_group',
+                permissions='rw-rw-rw-',
+            )
             callback(line)
 
     def sendcmd(self, command):
@@ -69,20 +94,3 @@ class MockFTP(object):
     def set_pasv(self, passive):
         return passive
 
-    def quit(self):
-        raise Exception('Fake a a problem with quit')
-
-    def close(self):
-        return True
-
-    def _set_files(self, files):
-        self._files = files
-
-    def _set_dirlist(self, dirlist):
-        self._dirlist = dirlist
-
-    def _set_exists(self, exists):
-        self._exists = exists
-
-    def _set_contents(self, contents):
-        self._contents = contents

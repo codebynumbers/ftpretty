@@ -6,9 +6,11 @@ if sys.version_info[0] < 3:
     from cStringIO import StringIO
     buffer_type = StringIO
     file_type = file
+    stringtype = unicode
 else:
     PY2 = False
     PY3 = True
     from io import IOBase, BytesIO
     file_type = IOBase
     buffer_type = BytesIO
+    stringtype = str
