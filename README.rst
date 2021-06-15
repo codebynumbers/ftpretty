@@ -2,8 +2,8 @@
 ftpretty
 ========
 
-.. image:: https://travis-ci.org/codebynumbers/ftpretty.png?branch=master
-   :target: https://travis-ci.org/codebynumbers/ftpretty
+.. image:: https://travis-ci.com/codebynumbers/ftpretty.svg?branch=master
+   :target: https://travis-ci.com/codebynumbers/ftpretty
 
 .. image:: https://coveralls.io/repos/codebynumbers/ftpretty/badge.png?branch=master
    :target: https://coveralls.io/r/codebynumbers/ftpretty?branch=master
