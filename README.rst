@@ -34,18 +34,21 @@ Examples
     from ftpretty import ftpretty
 
     # Minimal
-    f = ftpretty(host, user, pass)
+    f = ftpretty(host, port)
 
     # Advanced
-    # kwargs are passed to underlying FTP or FTP_TLS connection
-    # secure=True argument switches to an FTP_TLS connection default is False
-    # passive=False disable passive connection, True is the default
-    # Note: port is not supported as an argument in underlying FTP or FTP_TLS but support for
-    # handling port has been internally added in ftpretty by setting FTP.port or FTP_TLS.port
-    f = ftpretty(host, user, pass, secure=True, passive=False, timeout=10, port=2121)
+    # There are 3 more possible arguments that can be passed to the __init__ function:
+    # Passive - You can choose to specify whether the FTP client is in active mode or passive mode (defaults to passive)
+    # Secure - Uses TLS encryption (advised if the server supports it)
+    # FTP_CONN - Define another ftp library:
+
+   f = ftpretty(host, port, passive, secure, ftp_conn)
 
     # Get a file, save it locally
     f.get('someremote/file/on/server.txt', '/tmp/localcopy/server.txt')
+
+    # Check whether something is a file or a folder:
+    f.is_file('someremote/file/on/server')
 
     # Get a file and write to an open file
     myfile = open('/tmp/localcopy/server.txt', 'wb')
@@ -105,6 +108,9 @@ Examples
     # Change to remote directory
     f.cd('someremote/folder')
 
+    # This can be made easier with descend and ascend 
+    f.descend('on') # Changes directory to 'someremote/folder/on'
+    f.ascend() # Changes directory back to 'someremote/folder'
     # Create directory
     f.mkdir('new_folder')
 
