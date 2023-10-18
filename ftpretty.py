@@ -243,10 +243,11 @@ class ftpretty(object):
         else:
             return path not in self.relative_paths
 
-    def ascend(self, remote: str):
-        slash_index = remote.rfind("/")
-        remote = remote[:slash_index]
-        self.cd(remote)
+    def ascend(self, remote: str, steps=1):
+        for _ in range(steps):
+            slash_index = remote.rfind("/")
+            remote = remote[:slash_index]
+            self.cd(remote)
 
     def delete(self, remote):
         """ Delete a file from server """
