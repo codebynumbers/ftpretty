@@ -24,7 +24,7 @@ Transfers are assumed to be binary.
 
 Unrecognized commands fall through to the underlying FTP or FTP_TLS connection object
 
-Supports python 2 & 3, tested on 2.7 & 3.5, 3.6, & 3.7
+Supports python 3.5+
 
 Examples
 --------
