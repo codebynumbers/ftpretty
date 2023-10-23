@@ -1,15 +1,10 @@
-""" 
-A simple API wrapper for ftplib
-ORIGINAL CODE BY CODE-BY-NUMBERS, MODIFIED CODE BY EXVIXCITY
-https://github.com/codebynumbers
-https://github.com/exvixcity
-"""
 import datetime
 from ftplib import FTP, error_perm
 import os
 import re
 from dateutil import parser
 from io import IOBase, BytesIO
+from ssl import PROTOCOL_TLS
 
 try:
     from ftplib import FTP_TLS
@@ -29,42 +24,28 @@ class ftpretty(object):
     tmp_output = None
     relative_paths = set(['.', '..'])
 
-    def __init__(self, host, port=21, secure=False, passive=True, ftp_conn=None) -> None:
-        self.secure = secure
+    def __init__(self, host, port=21, secure=False, ftp_conn=None) -> None:
         if ftp_conn:
             self.conn = ftp_conn
         elif secure and FTP_TLS:
-            if self.port:
-                FTP_TLS.port = self.port
+            FTP_TLS.port = self.port
             self.conn = FTP_TLS()
             self.conn.connect(host=host, port=port)
             self.conn.prot_p()
         else:
-            if self.port:
-                FTP.port = self.port
+            FTP.port = self.port
             self.conn = FTP()
             self.conn.connect(host=host, port=port)
-
-        if not passive:
-            self.conn.set_pasv(False)
 
     def __enter__(self):
         return self
     
     def __exit__(self, exc_type, exc_value, traceback):
-        if self.conn is not None:
-            self.close()
+        self.close()
 
-    def login(self, user="", password="", anonymous=False) -> None:
-        if anonymous:
-            import string
-            import random
-            user = "Anonymous"
-            password = "".join(random.choice(string.ascii_letters
-                                            + string.digits
-                                            + string.punctuation) 
-                                            for _ in range(16))
-        self.conn.login(user=user, passwd=password)
+    def login(self, user="", password="") -> str:
+        """Logs in to server using the specified user and password"""
+        return self.conn.login(user=user, passwd=password)
 
     def __getattr__(self, name):
         """ Pass anything we don't know about, to underlying ftp connection """
@@ -72,6 +53,16 @@ class ftpretty(object):
             method = getattr(self.conn, name)
             return method(*args, **kwargs)
         return wrapper
+
+    def config(self, passive=True, ssl_version=PROTOCOL_TLS, debug_level=1) -> None:
+        """Basic configuration.\n
+           'passive' argument - Uses the PASV mode when true and the normal PORT mode when false\n
+           'ssl_version' argument - Sets the SSL version used for encrypting FTPS traffic\n
+           'debug_level' argument - Sets the verbosity level of server response. 
+           A level of 1 produces a moderate amount of debug output whereas a level of 2 logs each line sent and received by the server"""
+        self.conn.set_pasv(passive)
+        self.conn.ssl_version = ssl_version
+        self.conn.set_debuglevel(debug_level)
 
     def get(self, remote, local=None) -> None:
         """ Gets the file from FTP server
@@ -89,7 +80,6 @@ class ftpretty(object):
             local_file = open(local, 'wb')
 
         self.conn.retrbinary("RETR %s" % remote, local_file.write)
-
         if isinstance(local, IOBase):
             pass
         elif local is None:
@@ -102,15 +92,27 @@ class ftpretty(object):
         return None
 
     def get_welcome(self):
+        """Gets the server welcome message"""
         return self.conn.getwelcome()
 
+    def sendcmd(self, command, void=False) -> str:
+        """Sends a command to the FTP server, void argument expect a status code beginning with '2'"""
+        if void:
+            return self.conn.voidcmd(command)
+        else:
+            return self.conn.sendcmd(command)
+
+    def abort(self) -> None:
+        """Aborts any ongoing file transfers. This may not work all the time, but is worth a shot."""
+        self.conn.abort()
+
     def put(self, local, remote, contents=None, quiet=False):
-        """ Puts a local file (or contents) on to the FTP server
+        """ Puts a local file (or contents) on to the FTP server\n
 
             local can be:
-                a string: path to inpit file
-                a file: opened for reading
-                None: contents are pushed
+                a string: path to input file,
+                a file: opened for reading,
+                None: contents are pushed,
         """
         remote_dir = os.path.dirname(remote)
         remote_file = os.path.basename(local)\
@@ -200,16 +202,22 @@ class ftpretty(object):
                 pass
     
     def is_file(self, remote):
-        original_directory = self.conn.pwd()
-        try:
-            self.conn.cwd(remote)
-        except:
-            return False
-        self.conn.cwd(original_directory)
-        return True
+        """Checks if the given item is a file. Returns None if the file doesn't exist"""
+        listdir = list(self.conn.mlsd())
+        for item in listdir:
+            if item[0] == remote:
+                return item[1]["type"] == "file"
+        else:
+            return None
 
     def is_folder(self, remote):
-        return not self.is_file(remote)
+        """Checks if the given item is a folder. Returns None if the file doesn't exist"""
+        listdir = list(self.conn.mlsd())
+        for item in listdir:
+            if item[0] == remote:
+                return item[1]["type"] == "dir"
+        else:
+            return None
 
     def descend(self, remote, force=False):
         """ Descend, possibly creating directories as needed """
@@ -243,11 +251,13 @@ class ftpretty(object):
         else:
             return path not in self.relative_paths
 
-    def ascend(self, remote: str, steps=1):
+    def ascend(self, steps=1):
+        """Ascends a directory. 'steps' argument is the amount of times to ascend"""
         for _ in range(steps):
-            slash_index = remote.rfind("/")
-            remote = remote[:slash_index]
-            self.cd(remote)
+            if self.conn.pwd() != "/":
+                return self.conn.cwd("..")
+            else:
+                pass
 
     def delete(self, remote):
         """ Delete a file from server """
@@ -269,6 +279,12 @@ class ftpretty(object):
             return False
         else:
             return self.pwd()
+
+    def touch(self, name) -> None:
+        """ Creates a file """
+        file = open(file=name, mode="x")
+        self.put(file)
+        os.remove(file)
 
     def pwd(self):
         """ Return the current working directory """
