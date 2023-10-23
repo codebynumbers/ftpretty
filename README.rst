@@ -48,7 +48,7 @@ Examples
     f.get('someremote/file/on/server.txt', '/tmp/localcopy/server.txt')
 
     # Check whether something is a file or a folder:
-    f.is_file('someremote/file/on/server')
+    f.is_file('someremote/file/on/server.txt')
 
     # Get a file and write to an open file
     myfile = open('/tmp/localcopy/server.txt', 'wb')
@@ -113,6 +113,8 @@ Examples
     f.ascend() # Changes directory back to 'someremote/folder'
     # Create directory
     f.mkdir('new_folder')
+    # Create a file
+    f.touch('new_file.txt')
 
     # Delete a remote file
     f.delete('someremote/folder/file.txt')
