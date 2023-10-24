@@ -8,10 +8,23 @@
     f.put(local, remote)
     f.list(remote)
     f.cd(remote)
+    f.pwd()
+    f.descend(remote, force=True)
+    f.ascend(steps)
     f.delete(remote)
     f.rename(remote_from, remote_to)
     f.close()
+    f.mkdir(remote)
+    f.touch(remote)
+    f.is_file(remote)
+    f.is_folder(remote)
+    f.abort()
 
+    You should also be able to do this:
+    
+    from ftpretty import ftpretty
+    with ftpretty(host, user, pass, secure=False, timeout=10) as f:
+        [And all of the listed keywords above]
 """
 from __future__ import print_function
 import datetime
@@ -40,9 +53,8 @@ class ftpretty(object):
     tmp_output = None
     relative_paths = set(['.', '..'])
 
-    def __init__(self, host, user, password,
+    def __init__(self, host, user="anonymous", password="",
             secure=False, passive=True, ftp_conn=None, **kwargs):
-
         if 'port' in kwargs:
             self.port = kwargs['port']
             del kwargs['port']
@@ -61,6 +73,12 @@ class ftpretty(object):
 
         if not passive:
             self.conn.set_pasv(False)
+
+    def __enter__(self):
+        return self
+    
+    def __exit__(self):
+        self.close()
 
     def __getattr__(self, name):
         """ Pass anything we don't know about, to underlying ftp connection """
@@ -206,6 +224,20 @@ class ftpretty(object):
 
         return directory_list
 
+    def is_file(self, name):
+        for item in self.list(extra=True):
+            if item["name"] == name and item["directory"] == "-":
+                return True
+        else:
+            return False
+    
+    def is_folder(self, name):
+        for item in self.list(extra=True):
+            if item["name"] == name and item["directory"] == "d":
+                return True
+        else:
+            return False
+
     def is_not_relative_path(self, path):
         if isinstance(path, dict):
             return path.get('name') not in self.relative_paths
@@ -223,6 +255,10 @@ class ftpretty(object):
                     self.conn.mkd(directory)
                     self.conn.cwd(directory)
         return self.conn.pwd()
+    
+    def ascend(self, steps=1):
+        for _ in range(steps):
+            self.conn.cwd("..")
 
     def delete(self, remote):
         """ Delete a file from server """
@@ -257,6 +293,16 @@ class ftpretty(object):
         """ Create directory on the server """
         return self.conn.mkd(new_dir)
 
+    def touch(self, name):
+        """ Create a file on the server """
+        open(name, mode="x")
+        self.put(name)
+        os.remove(name)
+
+    def abort(self):
+        """ Aborts any ongoing file transfers """
+        return self.conn.abort()
+    
     def close(self):
         """ End the session """
         try:
