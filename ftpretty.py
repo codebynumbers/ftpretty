@@ -210,7 +210,7 @@ class ftpretty(object):
             else:
                 pass
 
-    def list(self, remote='.', extra=False, remove_relative_paths=False, supports_mlsd=False):
+    def list(self, remote='.', extra=False, remove_relative_paths=False):
         """ Return directory list """
         if extra:
             self.tmp_output = []
