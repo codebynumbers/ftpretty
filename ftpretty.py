@@ -210,7 +210,7 @@ class ftpretty(object):
             else:
                 pass
 
-    def list(self, remote='.', extra=False, remove_relative_paths=False):
+    def list(self, remote='.', extra=False, remove_relative_paths=False, supports_mlsd=False):
         """ Return directory list """
         if extra:
             self.tmp_output = []
@@ -225,7 +225,6 @@ class ftpretty(object):
         return directory_list
 
     def is_file(self, name):
-        """ Checks whether an item is a file """
         for item in self.list(extra=True):
             if item["name"] == name and item["directory"] == "-":
                 return True
@@ -233,7 +232,6 @@ class ftpretty(object):
             return False
     
     def is_folder(self, name):
-        """ Checks whether an item is a folder """
         for item in self.list(extra=True):
             if item["name"] == name and item["directory"] == "d":
                 return True
@@ -260,7 +258,10 @@ class ftpretty(object):
     
     def ascend(self, steps=1):
         for _ in range(steps):
+            if self.conn.pwd() == "/":
+                break
             self.conn.cwd("..")
+        return self.conn.pwd()
 
     def delete(self, remote):
         """ Delete a file from server """
