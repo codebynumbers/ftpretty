@@ -298,9 +298,7 @@ class ftpretty(object):
 
     def touch(self, name):
         """ Create a file on the server """
-        open(name, mode="x")
-        self.put(name)
-        os.remove(name)
+        self.put(None, name, contents=contents)
 
     def abort(self):
         """ Aborts any ongoing file transfers """
