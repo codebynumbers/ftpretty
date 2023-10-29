@@ -267,7 +267,11 @@ class ftpretty(object):
         """ Opens and reads a file on the server """
         buffer = buffer_type(self.get(remote))
         buffer.seek(0)
-        return buffer.read().decode()
+        try:
+            file_contents = buffer.read().decode()
+        except UnicodeDecodeError:
+            return [False, "Not a text file"]
+        return file_contents
     
     def delete(self, remote):
         """ Delete a file from server """
