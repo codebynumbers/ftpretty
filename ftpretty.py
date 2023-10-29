@@ -263,6 +263,12 @@ class ftpretty(object):
             self.conn.cwd("..")
         return self.conn.pwd()
 
+    def open(self, remote):
+        """ Opens and reads a file on the server """
+        buffer = buffer_type(self.get(remote))
+        buffer.seek(0)
+        return buffer.read().decode()
+    
     def delete(self, remote):
         """ Delete a file from server """
         try:
