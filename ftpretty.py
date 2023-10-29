@@ -18,6 +18,7 @@
     f.touch(remote)
     f.is_file(remote)
     f.is_folder(remote)
+    f.open()
     f.abort()
 
     You should also be able to do this:
