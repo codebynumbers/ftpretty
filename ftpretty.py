@@ -18,7 +18,6 @@
     f.touch(remote)
     f.is_file(remote)
     f.is_folder(remote)
-    f.open()
     f.abort()
 
     You should also be able to do this:
@@ -263,16 +262,6 @@ class ftpretty(object):
                 break
             self.conn.cwd("..")
         return self.conn.pwd()
-
-    def open(self, remote):
-        """ Opens and reads a file on the server """
-        buffer = buffer_type(self.get(remote))
-        buffer.seek(0)
-        try:
-            file_contents = buffer.read().decode()
-        except UnicodeDecodeError:
-            return [False, "Not a text file"]
-        return file_contents
     
     def delete(self, remote):
         """ Delete a file from server """
